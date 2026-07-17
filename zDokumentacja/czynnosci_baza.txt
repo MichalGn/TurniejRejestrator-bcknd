@@ -1,0 +1,98 @@
+
+1. Instalacja postgres w win7
+   - z pliku: PostgreSQL-10.3-1-win64-bigsql
+
+1. Utworznienie bazy:
+	(w win7 Start - Wszystkie programy - PostgreSQL - SQL Shell (psql))
+     su postgres(enter)
+     psql(enter)
+
+     CREATE DATABASE turniejrejestratordb WITH ENCODING 'UTF8';
+     CREATE USER programturniejrejestrator WITH PASSWORD 'lavo24';
+     \connect turniejrejestratordb;
+     ALTER DATABASE techniusdb  SET TIMEZONE TO 'EUROPE/WARSAW';
+
+(
+dbname: turniejrejestratordbdb;
+login: programturniejrejestrator;
+passwod: lavo24;
+)
+===
+
+Ustawienie datasourców z cli:
+C:\opt\wildfly-36.0.1.Final\bin>jboss-cli.bat --connect
+/subsystem=datasources/data-source=TechniusDS:add {
+    jndi-name=java:/TechniusDS,
+    driver-name=postgresql,
+    connection-url=jdbc:postgresql://localhost:5432/techniusdb,
+    user-name=programtechnius,
+    password=mojPrad@2025,
+    use-ccm=true,
+    max-pool-size=20,
+    enabled=true
+}
+byæ mo¿e musi byæ w jednej linii:
+/subsystem=datasources/data-source=TechniusDS:add(jndi-name=java:/TechniusDS,driver-name=postgresql,connection-url=jdbc:postgresql://localhost:5432/techniusdb,user-name=programtechnius,password=mojPrad@2025,use-ccm=true,max-pool-size=20,enabled=true)
+
+===
+
+
+2.
+ Uruchamiam polecenie sql z pliku
+\i '/mnt/nand-user/Atrop/Atropwww/dokumentacja/utworzTabele.sql'
+\i 'C:\\Michal\\ATR\\FalconEye\\Programy\\FalconEyeProject\\FalconEye\\zDokumentacja\\utworzTabele.sql'
+
+3.
+Ustawienie DataSource
+Name=TurniejRejestratorDS
+JNDI Name=java:jboss/datasources/TurniejRejestratorDS   LUB      java:/TurniejRejestratorDS    LUB    java:jboss/datasources/PostgreSQLDS
+ConnectionURL= jdbc:postgresql://localhost:5432/turniejrejestratordb 
+Username=programturniejrejestrator
+Password=lavo24
+
+--------------------------------
+5.Zalogowanie do Postgresql w bazie
+Uruchomienie postgresa
+# su - postgres
+$ psql programturniejrejestratordb
+techniusdb=# 
+
+
+-------------------------------
+Eksport bazy do pliku z kontenera dockera:
+docker exec -t technius-bcknd_container pg_dump -U postgres techniusdb > techniusdb_bckup_250406.sql
+
+====
+Jeszcze raz to samo:
+
+0.
+Zapisanie bazy do pliku z DockerStation_PROD:
+sudo docker exec -t turniejrejestrator-postgresdb_container pg_dump -U postgres turniejrejestratordb > ./turniejrejestrator_2509_staramilosna_all.sql
+(ALTER DATABASE  turniejrejestratordb RENAME TO turniejrejestratordb_2509_StaraMilosna;)
+(ALTER DATABASE  turniejrejestratordb_2509_StaraMilosna RENAME TO turniejrejestratordb;)
+
+
+
+1.
+Drop the old database
+docker exec -it turniejrejestrator-postgresdb_container psql -U postgres -c "DROP DATABASE turniejrejestratordb;"
+
+2a.
+Create role
+docker exec -it turniejrejestrator-postgresdb_container psql -U postgres -c "CREATE USER programturniejrejestrator WITH PASSWORD 'lavo24';"
+2.
+Create a fresh empty database:
+docker exec -it turniejrejestrator-postgresdb_container psql -U postgres -c "CREATE DATABASE turniejrejestratordb;"
+
+3.
+Copy the dump file into the container
+  -utworzenie katalogu (byæ mo¿ê ju¿ jest)
+docker exec -it turniejrejestrator-postgresdb_container mkdir -p /sql_dumps
+
+docker cp turniejrejestratordb_250911_all.sql turniejrejestrator-postgresdb_container:/sql_dumps/turniejrejestratordb_250911_all.sql
+docker cp turniejrejestrator_250925a_all.sql turniejrejestrator-postgresdb_container:/sql_dumps/turniejrejestrator_250925a_all.sql
+
+4.
+Restore the database from the dump
+docker exec -it turniejrejestrator-postgresdb_container psql -U postgres -d turniejrejestratordb -f /sql_dumps/turniejrejestratordb_250925a_all.sql
+

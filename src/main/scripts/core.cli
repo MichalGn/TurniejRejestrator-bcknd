@@ -1,0 +1,22 @@
+embed-server --server-config=standalone.xml
+
+# Add EJB3 subsystem if missing
+if (outcome == "failed") of /subsystem=ejb3:read-resource
+    /subsystem=ejb3:add()
+end-if
+
+# Configure the timer service
+/subsystem=ejb3:write-attribute(name=timer-service, value={
+    "thread-pool-name" => "default",
+    "data-store" => {
+        "path" => "timer-service-data",
+        "relative-to" => "jboss.server.data.dir"
+    }
+})
+
+# Add a default thread pool for EJBs
+if (outcome == "failed") of /subsystem=ejb3/thread-pool=default:read-resource
+    /subsystem=ejb3/thread-pool=default:add(max-threads=10, keepalive-time={"time" => 100, "unit" => "milliseconds"})
+end-if
+
+stop-embedded-server
