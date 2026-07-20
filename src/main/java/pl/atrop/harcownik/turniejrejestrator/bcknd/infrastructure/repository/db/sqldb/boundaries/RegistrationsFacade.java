@@ -30,4 +30,13 @@ public class RegistrationsFacade extends AbstractFacade<Registrations> {
     public RegistrationsFacade() {
         super(Registrations.class);
     }
+
+    public int deleteAllWithChildren() {
+        getEntityManager().createNativeQuery("UPDATE bills SET registration_id = NULL").executeUpdate();
+        getEntityManager().createNativeQuery("DELETE FROM comments WHERE status_id IN (SELECT id FROM statuses)").executeUpdate();
+        getEntityManager().createNativeQuery("DELETE FROM statuses").executeUpdate();
+        getEntityManager().createNativeQuery("DELETE FROM coaches").executeUpdate();
+        getEntityManager().createNativeQuery("DELETE FROM players").executeUpdate();
+        return getEntityManager().createNativeQuery("DELETE FROM registrations").executeUpdate();
+    }
 }

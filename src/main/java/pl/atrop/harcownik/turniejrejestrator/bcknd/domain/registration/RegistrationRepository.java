@@ -20,6 +20,13 @@ public interface RegistrationRepository {
     void updateStatus(int registrationId, RegistrationStatus registrationStatus);
     public int countByStatus(RegistrationStatus status);
     RegistrationSpecification findById(int registrationId);
+    RegistrationSpecification findByUuid(String uuid);
+    void updateIndividualByUuid(String uuid, IndividualRegisterRequestDto request);
+    ClubRegisterRequestDto findClubByUuid(String uuid);
+    void updateClubByUuid(String uuid, ClubRegisterRequestDto request);
+    void removeClubByUuid(String uuid);
+    void removeIndividualByUuid(String uuid);
+    void deleteAll();
     List<ParticipantSpecification> findAll();
     List<ParticipantSpecification> findCoaches();
     int countCoaches();

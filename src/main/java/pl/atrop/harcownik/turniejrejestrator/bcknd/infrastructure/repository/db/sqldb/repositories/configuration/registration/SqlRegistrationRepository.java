@@ -228,7 +228,16 @@ public class SqlRegistrationRepository implements RegistrationRepository {
     @Override
     public RegistrationSpecification findById(int registrationId) {
         Registrations registration = registrationsFacade.find(registrationId);
-        return this.createRegistrationSpecification(registration);
+        return registration == null ? null : this.createRegistrationSpecification(registration);
+    }
+
+    @Override
+    public RegistrationSpecification findByUuid(String uuid) {
+        if (uuid == null || uuid.isBlank()) {
+            return null;
+        }
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        return registration == null ? null : this.createRegistrationSpecification(registration);
     }
 
     private RegistrationSpecification createRegistrationSpecification(Registrations registration) {
@@ -252,6 +261,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
 
         RegistrationSpecification spec = new RegistrationSpecification(
                 registration.getId(),
+                registration.getUuid(),
                 registration.getClubName(),
                 registration.getNip(),
                 registration.getStreetNo(),
@@ -329,6 +339,257 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         return ldt;
     }
 
+
+    @Override
+    public ClubRegisterRequestDto findClubByUuid(String uuid) {
+        RegistrationSpecification spec = findByUuid(uuid);
+        if (spec == null || spec.clubName() == null || spec.status() == RegistrationStatus.REMOVED) {
+            return null;
+        }
+
+        ClubRegisterRequestDto.ClubInfo club = new ClubRegisterRequestDto.ClubInfo(
+                spec.clubName(),
+                spec.nip(),
+                spec.streetNo(),
+                spec.zipCode(),
+                spec.city()
+        );
+
+        ClubRegisterRequestDto.ContactInfo contact = new ClubRegisterRequestDto.ContactInfo(
+                spec.registratorName(),
+                spec.email(),
+                spec.email(),
+                spec.phone()
+        );
+
+        List<ClubRegisterRequestDto.PersonData> coaches = spec.coaches() == null ? List.of() : spec.coaches().stream()
+                .map(c -> new ClubRegisterRequestDto.PersonData(
+                c.personSpec().firstname(),
+                c.personSpec().lastname(),
+                c.personSpec().gender(),
+                c.personSpec().supperFri(),
+                c.personSpec().nightFriSat(),
+                c.dinnerSat(),
+                c.personSpec().supperSat(),
+                c.personSpec().nightSatSun(),
+                c.personSpec().dinnerSun(),
+                c.personSpec().price() == null ? 0 : c.personSpec().price().intValue()))
+                .toList();
+
+        List<ClubRegisterRequestDto.PlayerData> players = spec.players() == null ? List.of() : spec.players().stream()
+                .map(p -> new ClubRegisterRequestDto.PlayerData(
+                p.personSpec().firstname(),
+                p.personSpec().lastname(),
+                p.birthYear(),
+                p.personSpec().gender(),
+                p.personSpec().supperFri(),
+                p.personSpec().nightFriSat(),
+                true,
+                p.personSpec().supperSat(),
+                p.personSpec().nightSatSun(),
+                p.personSpec().dinnerSun(),
+                p.personSpec().price() == null ? 0 : p.personSpec().price().intValue(),
+                ClubRegisterRequestDto.Category.valueOf(p.category() == null ? "KT" : p.category()),
+                Integer.valueOf(2).equals(p.games()) ? "2g" : "1g"))
+                .toList();
+
+        String comment = latestUnverifiedComment(spec);
+        int coachesTotal = coaches.stream().mapToInt(c -> c.fee() == null ? 0 : c.fee()).sum();
+        int playersTotal = players.stream().mapToInt(p -> p.fee() == null ? 0 : p.fee()).sum();
+
+        return new ClubRegisterRequestDto(
+                club,
+                coaches,
+                players,
+                contact,
+                comment,
+                new ClubRegisterRequestDto.Totals(coachesTotal, playersTotal, coachesTotal + playersTotal)
+        );
+    }
+
+
+    private String latestUnverifiedComment(RegistrationSpecification spec) {
+        if (spec == null || spec.statuses() == null || spec.statuses().isEmpty()) {
+            return "";
+        }
+
+        return spec.statuses().stream()
+                .filter(status -> RegistrationStatus.UNVERIFIED.abbr().equals(status.status()))
+                .max(Comparator.comparing(StatusSpecification::datetime))
+                .map(status -> status.comment() == null ? "" : status.comment())
+                .orElse("");
+    }
+
+    @Override
+    @Transactional
+    public void updateClubByUuid(String uuid, ClubRegisterRequestDto request) {
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        if (registration == null || registration.getClubName() == null || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+            throw new IllegalArgumentException("Club registration not found or removed for uuid: " + uuid);
+        }
+
+        registration.setClubName(request.club().name());
+        registration.setNip(request.club().nip());
+        registration.setStreetNo(request.club().streetNo());
+        registration.setZipCode(request.club().zip_code());
+        registration.setCity(request.club().city());
+        registration.setRegistratorName(request.contact().fullName());
+        registration.setEmail(request.contact().email());
+        registration.setPhone(request.contact().phone());
+        registration.setTotalPrice(BigDecimal.valueOf(request.totals().grandTotal()));
+        registration.setStatus(RegistrationStatus.UNVERIFIED.abbr());
+        registrationsFacade.edit(registration);
+
+        coachesFacade.findListBySthOrderBySth("registrationId", registration, "id", true)
+                .forEach(coachesFacade::remove);
+        playersFacade.findListBySthOrderBySth("registrationId", registration, "id", true)
+                .forEach(playersFacade::remove);
+
+        request.coaches().forEach(coachDto -> {
+            Coaches coach = new Coaches();
+            coach.setRegistrationId(registration);
+            coach.setFirstname(coachDto.firstname());
+            coach.setLastname(coachDto.lastname());
+            coach.setGender(coachDto.gender());
+            coach.setSupperFri(coachDto.supperFri());
+            coach.setNightFriSat(coachDto.nightFriSat());
+            coach.setDinnerSat(Boolean.TRUE.equals(coachDto.dinnerSat()));
+            coach.setSupperSat(coachDto.supperSat());
+            coach.setNightSatSun(coachDto.nightSatSun());
+            coach.setDinnerSun(coachDto.dinnerSun());
+            coach.setPrice(BigDecimal.valueOf(coachDto.fee() == null ? 0 : coachDto.fee()));
+            coachesFacade.create(coach);
+        });
+
+        request.players().forEach(playerDto -> {
+            Players player = new Players();
+            player.setRegistrationId(registration);
+            player.setFirstname(playerDto.firstname());
+            player.setLastname(playerDto.lastname());
+            player.setBirthYear(playerDto.birthYear());
+            player.setGender(playerDto.gender());
+            player.setCategory(playerDto.category().name());
+            player.setGames(calcGames(playerDto.games()));
+            player.setSupperFri(playerDto.supperFri());
+            player.setNightFriSat(playerDto.nightFriSat());
+            player.setSupperSat(playerDto.supperSat());
+            player.setNightSatSun(playerDto.nightSatSun());
+            player.setDinnerSun(playerDto.dinnerSun());
+            player.setPrice(BigDecimal.valueOf(playerDto.fee() == null ? 0 : playerDto.fee()));
+            playersFacade.create(player);
+        });
+
+        Statuses status = createStatus(registration, RegistrationStatus.UNVERIFIED);
+
+        String commentText = request.comment();
+        if (commentText != null) {
+            commentText = commentText.trim();
+            if (!commentText.isEmpty()) {
+                Comments comment = new Comments();
+                comment.setStatusId(status);
+                comment.setComment(commentText);
+                commentsFacade.create(comment);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeClubByUuid(String uuid) {
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        if (registration == null || registration.getClubName() == null || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+            throw new IllegalArgumentException("Club registration not found or already removed for uuid: " + uuid);
+        }
+
+        registration.setStatus(RegistrationStatus.REMOVED.abbr());
+        registrationsFacade.edit(registration);
+        createStatus(registration, RegistrationStatus.REMOVED);
+    }
+
+    private Statuses createStatus(Registrations registration, RegistrationStatus registrationStatus) {
+        Statuses status = new Statuses();
+        status.setRegistrationId(registration);
+        status.setDatetime(Date.from(Instant.now()));
+        status.setStatus(registrationStatus.abbr());
+        statusesFacade.create(status);
+        return status;
+    }
+
+    @Override
+    @Transactional
+    public void updateIndividualByUuid(String uuid, IndividualRegisterRequestDto request) {
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        if (registration == null || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+            throw new IllegalArgumentException("Registration not found or removed for uuid: " + uuid);
+        }
+
+        List<Players> players = playersFacade.findListBySthOrderBySth("registrationId", registration, "id", true);
+        if (players.size() != 1 || registration.getClubName() != null) {
+            throw new IllegalStateException("Only individual registrations can be edited by public UUID link");
+        }
+
+        registration.setCity(request.city());
+        registration.setEmail(request.email());
+        registration.setTotalPrice(BigDecimal.valueOf(request.price()));
+        registration.setStatus(RegistrationStatus.UNVERIFIED.abbr());
+        registrationsFacade.edit(registration);
+
+        Players player = players.get(0);
+        player.setFirstname(request.firstname());
+        player.setLastname(request.lastname());
+        player.setBirthYear(request.birthYear());
+        player.setGender(request.gender());
+        player.setCategory(request.category());
+        player.setGames(calcGames(request.games()));
+        player.setNightFriSat(request.nightFriSat());
+        player.setNightSatSun(request.nightSatSun());
+        player.setSupperFri(request.supperFri());
+        player.setSupperSat(request.supperSat());
+        player.setDinnerSun(request.dinnerSun());
+        player.setPrice(BigDecimal.valueOf(request.price()));
+        playersFacade.edit(player);
+
+        Statuses status = new Statuses();
+        status.setRegistrationId(registration);
+        status.setDatetime(Date.from(Instant.now()));
+        status.setStatus(RegistrationStatus.UNVERIFIED.abbr());
+        statusesFacade.create(status);
+
+        String commentText = request.comment();
+        if (commentText != null) {
+            commentText = commentText.trim();
+            if (!commentText.isEmpty()) {
+                Comments comment = new Comments();
+                comment.setStatusId(status);
+                comment.setComment(commentText);
+                commentsFacade.create(comment);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeIndividualByUuid(String uuid) {
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        if (registration == null || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+            throw new IllegalArgumentException("Registration not found or already removed for uuid: " + uuid);
+        }
+
+        List<Players> players = playersFacade.findListBySthOrderBySth("registrationId", registration, "id", true);
+        if (players.size() != 1 || registration.getClubName() != null) {
+            throw new IllegalStateException("Only individual registrations can be removed by public UUID link");
+        }
+
+        registration.setStatus(RegistrationStatus.REMOVED.abbr());
+        registrationsFacade.edit(registration);
+
+        Statuses status = new Statuses();
+        status.setRegistrationId(registration);
+        status.setDatetime(Date.from(Instant.now()));
+        status.setStatus(RegistrationStatus.REMOVED.abbr());
+        statusesFacade.create(status);
+    }
+
     @Override
     @Transactional
     public void updateStatus(int registrationId, RegistrationStatus registrationStatus) {
@@ -383,6 +644,12 @@ public class SqlRegistrationRepository implements RegistrationRepository {
     @Override
     public int countPlayers() {
          return (int) playersFacade.countByConfirmedRegistration();
+    }
+
+    @Override
+    @Transactional
+    public void deleteAll() {
+        registrationsFacade.deleteAllWithChildren();
     }
 
     private ParticipantSpecification createParticipantSpec(Coaches coach) {

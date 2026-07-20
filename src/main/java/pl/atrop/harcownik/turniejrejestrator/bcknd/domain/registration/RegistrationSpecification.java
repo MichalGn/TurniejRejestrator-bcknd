@@ -13,6 +13,7 @@ import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration
 
 public record RegistrationSpecification(
     long registrationId,
+    String uuid,
     String clubName,
     String nip,
     String streetNo,

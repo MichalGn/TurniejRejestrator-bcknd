@@ -2,11 +2,13 @@ package pl.atrop.harcownik.turniejrejestrator.bcknd.domain.registration;
 
 import jakarta.inject.Inject;
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.RegistrationResource.RegistrationStatus;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.ClubRegisterRequestDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterRequestDto;
+import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterEditDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.RepositoryType;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.configuration.general_settings.GeneralSettingRepository;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.mail.EmailService;
@@ -51,14 +53,18 @@ public class DomainRegistrationService implements RegistrationService{
     @Override
     public long saveIndividual(IndividualRegisterRequestDto request) {
         long out = repository.saveIndividual(request);
-        sendConfirmationEmail(request.email(), request, UNVERIFIED);
+        RegistrationSpecification spec = repository.findById((int) out);
+        String editLink = createIndividualEditLink(spec.uuid());
+        sendConfirmationEmail(request.email(), request, UNVERIFIED, editLink);
         return out;
     }
 
     @Override
     public long saveClubRegistration(ClubRegisterRequestDto request) {
         long out = repository.saveClub(request);
-        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED);
+        RegistrationSpecification spec = repository.findById((int) out);
+        String editLink = createClubEditLink(spec.uuid());
+        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink);
         return out;
     }
 
@@ -78,8 +84,13 @@ public class DomainRegistrationService implements RegistrationService{
     public int countByStatus(RegistrationStatus status) {
         return repository.countByStatus(status);
     }
+
+    @Override
+    public void deleteAll() {
+        repository.deleteAll();
+    }
     
-    private void sendConfirmationEmail(String email, IndividualRegisterRequestDto request, String status) {
+    private void sendConfirmationEmail(String email, IndividualRegisterRequestDto request, String status, String editLink) {
          StringBuilder msgSB = new StringBuilder("Status: ").append(status)
                 .append("\n")
                 .append(request.firstname()).append(" ").append(request.lastname()).append(":");
@@ -94,12 +105,133 @@ public class DomainRegistrationService implements RegistrationService{
                 .append("\nUwagi: ").append((request.comment()!=null) ? request.comment() : "")
                 .append("\n")
                 .append("\nOpłata całkowita: ").append(request.price()).append(" PLN")
+                .append("\n\nLink do edycji zgłoszenia: ").append(editLink)
                 ;
                         
         sendConfirmationEmail(email, msgSB.toString());
     }
     
+
+    private String frontendUrl() {
+        String frontendUrl = System.getenv("FRONTEND_URL");
+        if (frontendUrl == null || frontendUrl.isBlank()) {
+            frontendUrl = "http://localhost:4200";
+        }
+        if (frontendUrl.endsWith("/")) {
+            frontendUrl = frontendUrl.substring(0, frontendUrl.length() - 1);
+        }
+        return frontendUrl;
+    }
+
+    private String createIndividualEditLink(String uuid) {
+        return frontendUrl() + "/individualRegister/edit/" + uuid;
+    }
+
+    private String createClubEditLink(String uuid) {
+        return frontendUrl() + "/clubRegister/edit/" + uuid;
+    }
+
+    @Override
+    public IndividualRegisterEditDto findIndividualByUuid(String uuid) {
+        RegistrationSpecification spec = repository.findByUuid(uuid);
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || spec.players() == null || spec.players().size() != 1 || spec.clubName() != null) {
+            return null;
+        }
+        PlayerSpecification player = spec.players().get(0);
+        PersonSpecification person = player.personSpec();
+        String comment = latestUnverifiedComment(spec);
+
+        String games = switch (player.games() == null ? 0 : player.games()) {
+            case 1 -> "1g";
+            case 2 -> "2g";
+            default -> null;
+        };
+
+        return new IndividualRegisterEditDto(
+                spec.uuid(),
+                person.firstname(),
+                person.lastname(),
+                player.birthYear(),
+                person.gender(),
+                player.category(),
+                games,
+                person.nightFriSat(),
+                person.supperFri(),
+                true,
+                person.nightSatSun(),
+                person.supperSat(),
+                person.dinnerSun(),
+                spec.email(),
+                spec.email(),
+                spec.city(),
+                comment,
+                spec.totalPrice() == null ? 0 : spec.totalPrice().intValue()
+        );
+    }
+
+
+    private String latestUnverifiedComment(RegistrationSpecification spec) {
+        if (spec == null || spec.statuses() == null || spec.statuses().isEmpty()) {
+            return "";
+        }
+
+        return spec.statuses().stream()
+                .filter(status -> RegistrationStatus.UNVERIFIED.abbr().equals(status.status()))
+                .max(Comparator.comparing(StatusSpecification::datetime))
+                .map(status -> status.comment() == null ? "" : status.comment())
+                .orElse("");
+    }
+
+    @Override
+    public void updateIndividualByUuid(String uuid, IndividualRegisterRequestDto request) {
+        RegistrationSpecification spec = repository.findByUuid(uuid);
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED) {
+            throw new IllegalArgumentException("Registration not found or removed for uuid: " + uuid);
+        }
+        repository.updateIndividualByUuid(uuid, request);
+        String editLink = createIndividualEditLink(uuid);
+        sendConfirmationEmail(request.email(), request, UNVERIFIED, editLink);
+    }
+
+    @Override
+    public void removeIndividualByUuid(String uuid) {
+        repository.removeIndividualByUuid(uuid);
+        RegistrationSpecification registrationSpec = repository.findByUuid(uuid);
+        sendConfirmationEmail(registrationSpec);
+    }
+
+    @Override
+    public ClubRegisterRequestDto findClubByUuid(String uuid) {
+        RegistrationSpecification spec = repository.findByUuid(uuid);
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || spec.clubName() == null) {
+            return null;
+        }
+        return repository.findClubByUuid(uuid);
+    }
+
+    @Override
+    public void updateClubByUuid(String uuid, ClubRegisterRequestDto request) {
+        RegistrationSpecification spec = repository.findByUuid(uuid);
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || spec.clubName() == null) {
+            throw new IllegalArgumentException("Registration not found or removed for uuid: " + uuid);
+        }
+        repository.updateClubByUuid(uuid, request);
+        String editLink = createClubEditLink(uuid);
+        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink);
+    }
+
+    @Override
+    public void removeClubByUuid(String uuid) {
+        repository.removeClubByUuid(uuid);
+        RegistrationSpecification registrationSpec = repository.findByUuid(uuid);
+        sendConfirmationEmail(registrationSpec);
+    }
+
     private void sendConfirmationEmail(String email, ClubRegisterRequestDto request, String status) {
+        sendConfirmationEmail(email, request, status, null);
+    }
+
+    private void sendConfirmationEmail(String email, ClubRegisterRequestDto request, String status, String editLink) {
         StringBuilder msgSB = new StringBuilder("Status: ").append(status)
                 .append("\n")
                 .append("\nNazwa klubu: ").append(request.club().name())
@@ -138,6 +270,10 @@ public class DomainRegistrationService implements RegistrationService{
                         player.supperSat(), player.nightFriSat(), player.dinnerSun(), 
                         player.gender(), BigDecimal.valueOf(player.fee())));
             });
+        }
+
+        if (editLink != null && !editLink.isBlank()) {
+            msgSB.append("\n\nLink do edycji zgłoszenia: ").append(editLink);
         }
 
         sendConfirmationEmail(email, msgSB.toString());
@@ -190,9 +326,25 @@ public class DomainRegistrationService implements RegistrationService{
             });
         }
 
+        appendEditLinkIfAvailable(msgSB, spec);
+
         sendConfirmationEmail(spec.email(), msgSB.toString());
     }
         
+
+    private void appendEditLinkIfAvailable(StringBuilder msgSB, RegistrationSpecification spec) {
+        if (spec == null || spec.uuid() == null || spec.uuid().isBlank() || spec.status() == RegistrationStatus.REMOVED) {
+            return;
+        }
+        if (spec.clubName() != null) {
+            msgSB.append("\n\nLink do edycji zgłoszenia: ").append(createClubEditLink(spec.uuid()));
+            return;
+        }
+        if (spec.players() != null && spec.players().size() == 1) {
+            msgSB.append("\n\nLink do edycji zgłoszenia: ").append(createIndividualEditLink(spec.uuid()));
+        }
+    }
+
     private void sendConfirmationEmail(String email, String msg) {
         if(generalSettingRepository.findSendEmails()) {
             String title = generalSettingRepository.findTitle();

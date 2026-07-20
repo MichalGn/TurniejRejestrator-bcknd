@@ -16,5 +16,6 @@ public interface BillService {
     int createOrModify(CreateOrModifyBillDto request);
     List<BillSpecification> findAll();
     void delete(int billId);
+    void deleteAll();
     BillSpecification edit(int billId);
 }

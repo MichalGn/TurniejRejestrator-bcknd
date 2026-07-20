@@ -24,4 +24,9 @@ public class BillsFacade extends AbstractFacade<Bills> {
         return max != null ? max : 0;
     }
 
+    public int deleteAllWithChildren() {
+        getEntityManager().createNativeQuery("DELETE FROM bill_comments").executeUpdate();
+        return getEntityManager().createNativeQuery("DELETE FROM bills").executeUpdate();
+    }
+
 }

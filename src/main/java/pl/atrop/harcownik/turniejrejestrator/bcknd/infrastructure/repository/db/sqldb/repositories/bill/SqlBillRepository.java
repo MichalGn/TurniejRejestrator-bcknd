@@ -219,6 +219,12 @@ public class SqlBillRepository implements BillRepository {
     }
 
     @Override
+    @Transactional
+    public void deleteAll() {
+        billsFacade.deleteAllWithChildren();
+    }
+
+    @Override
     public BillSpecification edit(int billId) {
          Bills bill2Edit = billsFacade.find(billId);
          return createSpec(bill2Edit);

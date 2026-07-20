@@ -159,6 +159,27 @@ public class BillResource {
         return Response.ok(responseMap).build();
     }
 
+
+    @DELETE
+    @Path("all")
+    public Response deleteAll(@HeaderParam("Authorization") String authToken) {
+        if (authToken == null || !authToken.startsWith(Boolean.TRUE.toString())) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        try {
+            service.deleteAll();
+            Response.ResponseBuilder responseBuilder = Response.ok();
+            if (!Boolean.TRUE.toString().equals(authToken)) {
+                responseBuilder.entity(Map.of("newAccessToken", authToken.replaceFirst(Boolean.TRUE.toString(), "")));
+            }
+            return responseBuilder.build();
+        } catch (Exception exc) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "An unexpected error occurred while deleting all bills: " + exc.getMessage()))
+                    .build();
+        }
+    }
+
     @DELETE
     @Path("/{billId}")
     public Response delete(@HeaderParam("Authorization") String authToken, @PathParam("billId") int billId) {

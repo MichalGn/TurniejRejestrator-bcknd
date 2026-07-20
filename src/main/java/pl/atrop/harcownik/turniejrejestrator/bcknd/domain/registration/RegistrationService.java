@@ -4,6 +4,7 @@ import java.util.List;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.RegistrationResource.RegistrationStatus;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.ClubRegisterRequestDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterRequestDto;
+import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterEditDto;
 
 /**
  *
@@ -25,4 +26,11 @@ public interface RegistrationService {
     List<ParticipantSpecification> findPlayers();
     int countPlayers();
     RegistrationSpecification findById(int registrationId);
+    IndividualRegisterEditDto findIndividualByUuid(String uuid);
+    void updateIndividualByUuid(String uuid, IndividualRegisterRequestDto request);
+    ClubRegisterRequestDto findClubByUuid(String uuid);
+    void updateClubByUuid(String uuid, ClubRegisterRequestDto request);
+    void removeClubByUuid(String uuid);
+    void removeIndividualByUuid(String uuid);
+    void deleteAll();
 }

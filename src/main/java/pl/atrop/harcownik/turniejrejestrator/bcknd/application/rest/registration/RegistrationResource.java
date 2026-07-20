@@ -4,6 +4,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
@@ -21,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.ClubRegisterRequestDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterRequestDto;
+import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterEditDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterResponseDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.security.interceptors.TokenVeryfier;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.infrastructure.interceptors.SeparatorLogLine;
@@ -88,6 +90,78 @@ public class RegistrationResource {
                 .build();
     }
 
+
+    @GET
+    @Path("/individual/{uuid}")
+    public Response findIndividualByUuid(@HeaderParam("Authorization") String authToken, @PathParam("uuid") String uuid) {
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+
+        IndividualRegisterEditDto item = service.findIndividualByUuid(uuid);
+        if (item == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found"))
+                    .build();
+        }
+        return Response.ok(item).build();
+    }
+
+    @PUT
+    @Path("/individual/{uuid}")
+    public Response updateIndividualByUuid(
+            @HeaderParam("Authorization") String authToken,
+            @PathParam("uuid") String uuid,
+            @Valid IndividualRegisterRequestDto request) {
+
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+        if (request == null) {
+            return badRequest("emptyBody");
+        }
+        if (isBlank(request.gender()) || isBlank(request.category()) || isBlank(request.games())) {
+            return badRequest("gender_category_games_required");
+        }
+        if (!Objects.equals(request.email(), request.repeatEmail())) {
+            return badRequest("emailMismatch");
+        }
+
+        try {
+            service.updateIndividualByUuid(uuid, request);
+            return Response.ok(Map.of("status", "updated")).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found"))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "update_failed", "message", ex.getMessage()))
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/individual/{uuid}")
+    public Response removeIndividualByUuid(@HeaderParam("Authorization") String authToken, @PathParam("uuid") String uuid) {
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+
+        try {
+            service.removeIndividualByUuid(uuid);
+            return Response.ok(Map.of("status", "removed")).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found"))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "remove_failed", "message", ex.getMessage()))
+                    .build();
+        }
+    }
+
     private static boolean isBlank(String s) {
         return s == null || s.isBlank(); // Java 11+: trims and checks emptiness
     }
@@ -96,23 +170,13 @@ public class RegistrationResource {
         return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", code)).build();
     }
 
-    @POST
-    @Path("/club")
-    public Response saveClubRegistration(
-            @HeaderParam("Authorization") String authToken,
-            @Valid ClubRegisterRequestDto request) {
-
+    private static Response validateClubRequest(ClubRegisterRequestDto request) {
         if (request == null) {
             return badRequest("emptyBody");
         }
-
-        // Basic server-side guards (you can extend as needed)
         if (request.club() == null || isBlank(request.club().name())) {
             return badRequest("club_name_required");
         }
-        //if (request.club() == null || isBlank(request.club().nip())) {
-        //    return badRequest("club_nip_required");
-        //}
         if (request.contact() == null || isBlank(request.contact().email())) {
             return badRequest("contact_email_required");
         }
@@ -120,7 +184,6 @@ public class RegistrationResource {
             return badRequest("emailMismatch");
         }
 
-        // (Optional) totals sanity check (comment out if not desired)
         int coachesSum = request.coaches() == null ? 0
                 : request.coaches().stream().mapToInt(c -> c.fee() == null ? 0 : c.fee()).sum();
         int playersSum = request.players() == null ? 0
@@ -132,12 +195,90 @@ public class RegistrationResource {
                 return badRequest("totals_mismatch_coaches");
             }
             if (!Objects.equals(request.totals().playersTotalPrice(), playersSum)) {
-                System.out.println("totals_mismatch_players, request.totals().playersTotalPrice():" + request.totals().playersTotalPrice() + ", playersSum:" + playersSum);
                 return badRequest("totals_mismatch_players");
             }
             if (!Objects.equals(request.totals().grandTotal(), grand)) {
                 return badRequest("totals_mismatch_grand");
             }
+        }
+        return null;
+    }
+
+    @GET
+    @Path("/club/{uuid}")
+    public Response findClubByUuid(@HeaderParam("Authorization") String authToken, @PathParam("uuid") String uuid) {
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+
+        ClubRegisterRequestDto item = service.findClubByUuid(uuid);
+        if (item == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found_or_removed"))
+                    .build();
+        }
+        return Response.ok(item).build();
+    }
+
+    @PUT
+    @Path("/club/{uuid}")
+    public Response updateClubByUuid(
+            @HeaderParam("Authorization") String authToken,
+            @PathParam("uuid") String uuid,
+            @Valid ClubRegisterRequestDto request) {
+
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+        Response validationError = validateClubRequest(request);
+        if (validationError != null) {
+            return validationError;
+        }
+
+        try {
+            service.updateClubByUuid(uuid, request);
+            return Response.ok(Map.of("status", "updated")).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found_or_removed"))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "update_failed", "message", ex.getMessage()))
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/club/{uuid}")
+    public Response removeClubByUuid(@HeaderParam("Authorization") String authToken, @PathParam("uuid") String uuid) {
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+
+        try {
+            service.removeClubByUuid(uuid);
+            return Response.ok(Map.of("status", "removed")).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found_or_removed"))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "remove_failed", "message", ex.getMessage()))
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/club")
+    public Response saveClubRegistration(
+            @HeaderParam("Authorization") String authToken,
+            @Valid ClubRegisterRequestDto request) {
+
+        Response validationError = validateClubRequest(request);
+        if (validationError != null) {
+            return validationError;
         }
 
         long id = service.saveClubRegistration(request);
@@ -202,6 +343,27 @@ public class RegistrationResource {
         responseMap.put("data", items);
 
         return Response.ok(responseMap).build();
+    }
+
+
+    @DELETE
+    @Path("all")
+    public Response deleteAll(@HeaderParam("Authorization") String authToken) {
+        if (authToken == null || !authToken.startsWith(Boolean.TRUE.toString())) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+
+        try {
+            service.deleteAll();
+            return authToken.equals(Boolean.TRUE.toString())
+                    ? Response.ok().build()
+                    : Response.ok(Map.of("newAccessToken", authToken.replaceFirst(Boolean.TRUE.toString(), ""))).build();
+
+        } catch (Exception exc) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "An unexpected error occurred while deleting all registrations: " + exc.getMessage()))
+                    .build();
+        }
     }
 
     @GET

@@ -51,6 +51,11 @@ public class DomainBillService implements BillService{
     }
 
     @Override
+    public void deleteAll() {
+        repository.deleteAll();
+    }
+
+    @Override
     public BillSpecification edit(int billId) {
         return  repository.edit(billId);
     }
