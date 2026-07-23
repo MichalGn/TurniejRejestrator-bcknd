@@ -39,7 +39,7 @@ public class GusBirClient {
             return Optional.of(cached.company());
         }
 
-        String apiKey = "xxxxxxxxxxxxxxxxxxx";//requiredEnvironment("GUS_BIR_API_KEY");
+        String apiKey = "a548f908257a4b8f8500";//requiredEnvironment("GUS_BIR_API_KEY");
         String endpoint = optionalEnvironment("GUS_BIR_ENDPOINT", DEFAULT_ENDPOINT);
         String sid = login(endpoint, apiKey);
 

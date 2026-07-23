@@ -12,13 +12,16 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.bill.dto.CreateOrModifyBillDto;
+import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.bill.dto.SendBillEmailDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.security.interceptors.TokenVeryfier;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.bill.BillService;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.bill.BillSpecification;
+import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.mail.EmailService;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.infrastructure.interceptors.SeparatorLogLine;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.infrastructure.interceptors.Timed;
 
@@ -37,6 +40,9 @@ import pl.atrop.harcownik.turniejrejestrator.bcknd.infrastructure.interceptors.T
 public class BillResource {
 
     private final BillService service;
+
+    @Inject
+    private EmailService emailService;
 
     public BillResource() {
         this.service = null;
@@ -113,7 +119,48 @@ public class BillResource {
          */
         // TODO: map CreateBillRequest -> your domain command/entity as your BillService expects
         // Example: long id = service.createBill(req);   // adjust the call to your service API
-        return Response.ok(Response.Status.CREATED).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(Map.of("billId", billId))
+                .build();
+    }
+
+    @POST
+    @Path("/{billId}/send-email")
+    public Response sendBillEmail(
+            @HeaderParam("Authorization") String authToken,
+            @PathParam("billId") int billId,
+            SendBillEmailDto request) {
+        if (authToken == null || !authToken.startsWith(Boolean.TRUE.toString())) {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+        if (request == null || request.email() == null || request.email().isBlank()
+                || request.pdfBase64() == null || request.pdfBase64().isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "Brak adresu e-mail lub pliku PDF."))
+                    .build();
+        }
+
+        try {
+            byte[] pdf = Base64.getDecoder().decode(request.pdfBase64());
+            String fileName = request.fileName() == null || request.fileName().isBlank()
+                    ? "rachunek.pdf" : request.fileName();
+            emailService.sendWithAttachment(
+                    request.email().trim(),
+                    "Rachunek " + billId,
+                    "Dzień dobry,\n\nw załączeniu przesyłamy rachunek.\n\nPozdrawiamy",
+                    pdf,
+                    fileName,
+                    "application/pdf");
+            return Response.ok(Map.of("sent", true)).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "Nieprawidłowe dane pliku PDF."))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity(Map.of("error", "Nie udało się wysłać rachunku e-mailem: " + ex.getMessage()))
+                    .build();
+        }
     }
 
     @PUT
