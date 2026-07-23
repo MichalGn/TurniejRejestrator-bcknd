@@ -16,6 +16,7 @@ import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration
 public interface RegistrationService {
     long saveIndividual(IndividualRegisterRequestDto request);
     long saveClubRegistration(ClubRegisterRequestDto request);
+    long saveFamilyRegistration(ClubRegisterRequestDto request);
     List<String> findEmails();
     List<RegistrationSpecification> findListByStatus(RegistrationStatus status);
     void updateStatus(int registrationId, RegistrationStatus registrationStatus);
@@ -29,8 +30,11 @@ public interface RegistrationService {
     IndividualRegisterEditDto findIndividualByUuid(String uuid);
     void updateIndividualByUuid(String uuid, IndividualRegisterRequestDto request);
     ClubRegisterRequestDto findClubByUuid(String uuid);
+    ClubRegisterRequestDto findFamilyByUuid(String uuid);
     void updateClubByUuid(String uuid, ClubRegisterRequestDto request);
+    void updateFamilyByUuid(String uuid, ClubRegisterRequestDto request);
     void removeClubByUuid(String uuid);
+    void removeFamilyByUuid(String uuid);
     void removeIndividualByUuid(String uuid);
     void deleteAll();
 }

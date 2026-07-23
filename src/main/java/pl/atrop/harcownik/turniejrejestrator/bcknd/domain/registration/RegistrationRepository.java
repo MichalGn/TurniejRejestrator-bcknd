@@ -16,6 +16,7 @@ public interface RegistrationRepository {
     List<String> findEmails();
     long saveIndividual(IndividualRegisterRequestDto request);
     long saveClub(ClubRegisterRequestDto request);
+    long saveFamily(ClubRegisterRequestDto request);
     List<RegistrationSpecification> findListByStatus(RegistrationStatus status);
     void updateStatus(int registrationId, RegistrationStatus registrationStatus);
     public int countByStatus(RegistrationStatus status);
@@ -23,8 +24,11 @@ public interface RegistrationRepository {
     RegistrationSpecification findByUuid(String uuid);
     void updateIndividualByUuid(String uuid, IndividualRegisterRequestDto request);
     ClubRegisterRequestDto findClubByUuid(String uuid);
+    ClubRegisterRequestDto findFamilyByUuid(String uuid);
     void updateClubByUuid(String uuid, ClubRegisterRequestDto request);
+    void updateFamilyByUuid(String uuid, ClubRegisterRequestDto request);
     void removeClubByUuid(String uuid);
+    void removeFamilyByUuid(String uuid);
     void removeIndividualByUuid(String uuid);
     void deleteAll();
     List<ParticipantSpecification> findAll();

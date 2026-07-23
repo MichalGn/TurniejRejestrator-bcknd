@@ -43,7 +43,8 @@ import java.util.Set;
     @NamedQuery(name = "Registrations.findByRegistratorName", query = "SELECT r FROM Registrations r WHERE r.registratorName = :registratorName"),
     @NamedQuery(name = "Registrations.findByEmail", query = "SELECT r FROM Registrations r WHERE r.email = :email"),
     @NamedQuery(name = "Registrations.findByPhone", query = "SELECT r FROM Registrations r WHERE r.phone = :phone"),
-    @NamedQuery(name = "Registrations.findByTotalPrice", query = "SELECT r FROM Registrations r WHERE r.totalPrice = :totalPrice")})
+    @NamedQuery(name = "Registrations.findByTotalPrice", query = "SELECT r FROM Registrations r WHERE r.totalPrice = :totalPrice"),
+    @NamedQuery(name = "Registrations.findByRegistrationType", query = "SELECT r FROM Registrations r WHERE r.registrationType = :registrationType")})
 public class Registrations implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -92,6 +93,11 @@ public class Registrations implements Serializable {
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "total_price")
     private BigDecimal totalPrice;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 16)
+    @Column(name = "registration_type")
+    private String registrationType;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "registrationId", fetch = FetchType.LAZY)
     private Set<Coaches> coachesSet;
     @JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -220,6 +226,14 @@ public class Registrations implements Serializable {
         this.totalPrice = totalPrice;
     }
 
+    public String getRegistrationType() {
+        return registrationType;
+    }
+
+    public void setRegistrationType(String registrationType) {
+        this.registrationType = registrationType;
+    }
+
     public Set<Coaches> getCoachesSet() {
         return coachesSet;
     }
@@ -259,6 +273,7 @@ public class Registrations implements Serializable {
     public void setBillsSet(Set<Bills> billsSet) {
         this.billsSet = billsSet;
     }
+
 
     @Override
     public int hashCode() {

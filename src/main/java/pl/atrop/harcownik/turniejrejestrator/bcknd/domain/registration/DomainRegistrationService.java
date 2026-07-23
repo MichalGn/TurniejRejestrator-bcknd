@@ -64,7 +64,16 @@ public class DomainRegistrationService implements RegistrationService{
         long out = repository.saveClub(request);
         RegistrationSpecification spec = repository.findById((int) out);
         String editLink = createClubEditLink(spec.uuid());
-        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink);
+        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink, false);
+        return out;
+    }
+
+    @Override
+    public long saveFamilyRegistration(ClubRegisterRequestDto request) {
+        long out = repository.saveFamily(request);
+        RegistrationSpecification spec = repository.findById((int) out);
+        String editLink = createFamilyEditLink(spec.uuid());
+        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink, true);
         return out;
     }
 
@@ -98,7 +107,7 @@ public class DomainRegistrationService implements RegistrationService{
                 msgSB.append("\n\t").append("Liczba gier: ").append(request.games());
                 msgSB.append(createNightsAndMeals(
                         request.supperFri(), request.nightFriSat(), true, 
-                        request.supperSat(), request.nightFriSat(), request.dinnerSun(), 
+                        request.supperSat(), request.nightSatSun(), request.dinnerSun(), 
                         request.gender(), BigDecimal.valueOf(request.price())))
                 .append("\n")
                 .append("\nMiejscowość: ").append(request.city())
@@ -129,6 +138,10 @@ public class DomainRegistrationService implements RegistrationService{
 
     private String createClubEditLink(String uuid) {
         return frontendUrl() + "/clubRegister/edit/" + uuid;
+    }
+
+    private String createFamilyEditLink(String uuid) {
+        return frontendUrl() + "/familyRegister/edit/" + uuid;
     }
 
     @Override
@@ -203,21 +216,41 @@ public class DomainRegistrationService implements RegistrationService{
     @Override
     public ClubRegisterRequestDto findClubByUuid(String uuid) {
         RegistrationSpecification spec = repository.findByUuid(uuid);
-        if (spec == null || spec.status() == RegistrationStatus.REMOVED || spec.clubName() == null) {
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || !"CLUB".equals(spec.registrationType())) {
             return null;
         }
         return repository.findClubByUuid(uuid);
     }
 
     @Override
+    public ClubRegisterRequestDto findFamilyByUuid(String uuid) {
+        RegistrationSpecification spec = repository.findByUuid(uuid);
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || !"FAMILY".equals(spec.registrationType())) {
+            return null;
+        }
+        return repository.findFamilyByUuid(uuid);
+    }
+
+    @Override
     public void updateClubByUuid(String uuid, ClubRegisterRequestDto request) {
         RegistrationSpecification spec = repository.findByUuid(uuid);
-        if (spec == null || spec.status() == RegistrationStatus.REMOVED || spec.clubName() == null) {
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || !"CLUB".equals(spec.registrationType())) {
             throw new IllegalArgumentException("Registration not found or removed for uuid: " + uuid);
         }
         repository.updateClubByUuid(uuid, request);
         String editLink = createClubEditLink(uuid);
-        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink);
+        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink, false);
+    }
+
+    @Override
+    public void updateFamilyByUuid(String uuid, ClubRegisterRequestDto request) {
+        RegistrationSpecification spec = repository.findByUuid(uuid);
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED || !"FAMILY".equals(spec.registrationType())) {
+            throw new IllegalArgumentException("Family registration not found or removed for uuid: " + uuid);
+        }
+        repository.updateFamilyByUuid(uuid, request);
+        String editLink = createFamilyEditLink(uuid);
+        sendConfirmationEmail(request.contact().email(), request, UNVERIFIED, editLink, true);
     }
 
     @Override
@@ -227,17 +260,34 @@ public class DomainRegistrationService implements RegistrationService{
         sendConfirmationEmail(registrationSpec);
     }
 
+    @Override
+    public void removeFamilyByUuid(String uuid) {
+        repository.removeFamilyByUuid(uuid);
+        RegistrationSpecification registrationSpec = repository.findByUuid(uuid);
+        sendConfirmationEmail(registrationSpec);
+    }
+
     private void sendConfirmationEmail(String email, ClubRegisterRequestDto request, String status) {
-        sendConfirmationEmail(email, request, status, null);
+        sendConfirmationEmail(email, request, status, null, false);
     }
 
     private void sendConfirmationEmail(String email, ClubRegisterRequestDto request, String status, String editLink) {
+        sendConfirmationEmail(email, request, status, editLink, false);
+    }
+
+    private void sendConfirmationEmail(String email, ClubRegisterRequestDto request, String status, String editLink, boolean familyMode) {
         StringBuilder msgSB = new StringBuilder("Status: ").append(status)
-                .append("\n")
+                .append("\n");
+        if (!familyMode) {
+            msgSB
                 .append("\nNazwa klubu: ").append(request.club().name())
                 .append("\nAdres klubu: ").append(request.club().streetNo()).append(", ").append(request.club().zip_code()).append(", ").append(request.club().city())
                 .append("\nNIP: ").append(request.club().nip())
-                .append("\n")
+                .append("\n");
+        } else if (request.club() != null && request.club().name() != null && !request.club().name().isBlank()) {
+            msgSB.append("\nNazwa klubu: ").append(request.club().name()).append("\n");
+        }
+        msgSB
                 .append("\nOsoba rejestrująca: ").append(request.contact().fullName())
                 .append("\nTelefon: ").append(request.contact().phone())
                 .append("\nUwagi: ").append((request.comment()!=null) ? request.comment() : "")
@@ -247,12 +297,12 @@ public class DomainRegistrationService implements RegistrationService{
                 ;
 
         if (!request.coaches().isEmpty()) {
-                msgSB.append("\nTrenerzy:");
+                msgSB.append(familyMode ? "\nOpiekunowie:" : "\nTrenerzy:");
             request.coaches().forEach(coach -> {
                 msgSB.append("\n").append(coach.firstname()).append(" ").append(coach.lastname()).append(":");
                 msgSB.append(createNightsAndMeals(
                         coach.supperFri(), coach.nightFriSat(), coach.dinnerSat(), 
-                        coach.supperSat(), coach.nightFriSat(), coach.dinnerSun(), 
+                        coach.supperSat(), coach.nightSatSun(), coach.dinnerSun(), 
                         coach.gender(), BigDecimal.valueOf(coach.fee())));
                 msgSB.append("\n");
             });
@@ -267,7 +317,7 @@ public class DomainRegistrationService implements RegistrationService{
                 msgSB.append("\n\t").append("Liczba gier: ").append(player.games());
                 msgSB.append(createNightsAndMeals(
                         player.supperFri(), player.nightFriSat(), true, 
-                        player.supperSat(), player.nightFriSat(), player.dinnerSun(), 
+                        player.supperSat(), player.nightSatSun(), player.dinnerSun(), 
                         player.gender(), BigDecimal.valueOf(player.fee())));
             });
         }
@@ -282,12 +332,14 @@ public class DomainRegistrationService implements RegistrationService{
     private void sendConfirmationEmail(RegistrationSpecification spec) {
         StringBuilder msgSB = new StringBuilder("Status: ").append(spec.status().desc().toUpperCase())
                 .append("\n");
-        if (spec.clubName()!= null) {
-            msgSB
-                .append("\nNazwa klubu: ").append(spec.clubName())
-                .append("\nAdres klubu: ").append(spec.streetNo()).append(", ").append(spec.zipCode()).append(", ").append(spec.city())
-                .append("\nNIP: ").append(spec.nip())
-                .append("\n");
+        if (spec.clubName() != null && !spec.clubName().isBlank()) {
+            msgSB.append("\nNazwa klubu: ").append(spec.clubName()).append("\n");
+            if ("CLUB".equals(spec.registrationType())) {
+                msgSB
+                    .append("Adres klubu: ").append(spec.streetNo()).append(", ").append(spec.zipCode()).append(", ").append(spec.city())
+                    .append("\nNIP: ").append(spec.nip())
+                    .append("\n");
+            }
         }
         
         String comment = spec.statuses().get(0).comment();
@@ -301,12 +353,12 @@ public class DomainRegistrationService implements RegistrationService{
             ;
 
         if (!spec.coaches().isEmpty()) {
-            msgSB.append("\nTrenerzy:");
+            msgSB.append("FAMILY".equals(spec.registrationType()) ? "\nOpiekunowie:" : "\nTrenerzy:");
             spec.coaches().forEach(coach -> {
                 msgSB.append("\n").append(coach.personSpec().firstname()).append(" ").append(coach.personSpec().lastname()).append(":");
                 msgSB.append(createNightsAndMeals(
                         coach.personSpec().supperFri(), coach.personSpec().nightFriSat(), coach.dinnerSat(), 
-                        coach.personSpec().supperSat(), coach.personSpec().nightFriSat(), coach.personSpec().dinnerSun(), 
+                        coach.personSpec().supperSat(), coach.personSpec().nightSatSun(), coach.personSpec().dinnerSun(), 
                         coach.personSpec().gender(), coach.personSpec().price()));
                 msgSB.append("\n");
             });
@@ -321,7 +373,7 @@ public class DomainRegistrationService implements RegistrationService{
                 msgSB.append("\n\t").append("Liczba gier: ").append(player.games());
                 msgSB.append(createNightsAndMeals(
                         player.personSpec().supperFri(), player.personSpec().nightFriSat(), true, 
-                        player.personSpec().supperSat(), player.personSpec().nightFriSat(), player.personSpec().dinnerSun(), 
+                        player.personSpec().supperSat(), player.personSpec().nightSatSun(), player.personSpec().dinnerSun(), 
                         player.personSpec().gender(), player.personSpec().price()));
             });
         }
@@ -336,7 +388,11 @@ public class DomainRegistrationService implements RegistrationService{
         if (spec == null || spec.uuid() == null || spec.uuid().isBlank() || spec.status() == RegistrationStatus.REMOVED) {
             return;
         }
-        if (spec.clubName() != null) {
+        if ("FAMILY".equals(spec.registrationType())) {
+            msgSB.append("\n\nLink do edycji zgłoszenia: ").append(createFamilyEditLink(spec.uuid()));
+            return;
+        }
+        if ("CLUB".equals(spec.registrationType())) {
             msgSB.append("\n\nLink do edycji zgłoszenia: ").append(createClubEditLink(spec.uuid()));
             return;
         }

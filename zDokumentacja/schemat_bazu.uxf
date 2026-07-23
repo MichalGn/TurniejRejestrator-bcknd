@@ -6,7 +6,7 @@
     <id>UMLClass</id>
     <coordinates>
       <x>161</x>
-      <y>147</y>
+      <y>98</y>
       <w>175</w>
       <h>105</h>
     </coordinates>
@@ -27,7 +27,7 @@ active........boolean not null
     <id>UMLClass</id>
     <coordinates>
       <x>868</x>
-      <y>182</y>
+      <y>133</y>
       <w>196</w>
       <h>77</h>
     </coordinates>
@@ -43,22 +43,22 @@ comment.........varchar(512)
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>588</x>
-      <y>210</y>
-      <w>63</w>
+      <x>595</x>
+      <y>161</y>
+      <w>56</w>
       <h>112</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 fg=blue
 lw=2</panel_attributes>
-    <additional_attributes>10.0;140.0;40.0;140.0;40.0;10.0;70.0;10.0</additional_attributes>
+    <additional_attributes>10.0;140.0;30.0;140.0;30.0;10.0;60.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
     <coordinates>
       <x>392</x>
-      <y>287</y>
-      <w>203</w>
+      <y>238</y>
+      <w>210</w>
       <h>224</h>
     </coordinates>
     <panel_attributes>Registrations
@@ -77,6 +77,7 @@ registrator_name................varchar(128)
 email................varchar(512) not null unique
 phone...............varchar(12)
 totalPrice.........number(7,2)
+registration_type...varchar(16) not null
 </panel_attributes>
     <additional_attributes/>
   </element>
@@ -84,7 +85,7 @@ totalPrice.........number(7,2)
     <id>UMLClass</id>
     <coordinates>
       <x>637</x>
-      <y>273</y>
+      <y>224</y>
       <w>175</w>
       <h>189</h>
     </coordinates>
@@ -111,7 +112,7 @@ price...................number(7,2)
     <id>UMLState</id>
     <coordinates>
       <x>602</x>
-      <y>1127</y>
+      <y>1078</y>
       <w>231</w>
       <h>56</h>
     </coordinates>
@@ -125,7 +126,7 @@ price...................number(7,2)
     <id>UMLSpecialState</id>
     <coordinates>
       <x>952</x>
-      <y>1092</y>
+      <y>1043</y>
       <w>14</w>
       <h>14</h>
     </coordinates>
@@ -136,7 +137,7 @@ price...................number(7,2)
     <id>Relation</id>
     <coordinates>
       <x>714</x>
-      <y>1099</y>
+      <y>1050</y>
       <w>259</w>
       <h>42</h>
     </coordinates>
@@ -147,7 +148,7 @@ price...................number(7,2)
     <id>Relation</id>
     <coordinates>
       <x>609</x>
-      <y>1176</y>
+      <y>1127</y>
       <w>21</w>
       <h>77</h>
     </coordinates>
@@ -159,7 +160,7 @@ price...................number(7,2)
     <id>UMLState</id>
     <coordinates>
       <x>406</x>
-      <y>1239</y>
+      <y>1190</y>
       <w>231</w>
       <h>70</h>
     </coordinates>
@@ -171,7 +172,7 @@ Link do wysłania zgłoszenia został wysłany mailem.</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>511</x>
-      <y>1302</y>
+      <y>1253</y>
       <w>105</w>
       <h>91</h>
     </coordinates>
@@ -183,7 +184,7 @@ Kliknięto link z maila</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>742</x>
-      <y>1176</y>
+      <y>1127</y>
       <w>126</w>
       <h>77</h>
     </coordinates>
@@ -195,7 +196,7 @@ Zalogowano użytkownika</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>693</x>
-      <y>1239</y>
+      <y>1190</y>
       <w>231</w>
       <h>70</h>
     </coordinates>
@@ -206,7 +207,7 @@ Zalogowano użytkownika</panel_attributes>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>749</x>
-      <y>1337</y>
+      <y>1288</y>
       <w>14</w>
       <h>14</h>
     </coordinates>
@@ -217,7 +218,7 @@ Zalogowano użytkownika</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>749</x>
-      <y>1302</y>
+      <y>1253</y>
       <w>21</w>
       <h>49</h>
     </coordinates>
@@ -229,7 +230,7 @@ Zalogowano użytkownika</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>406</x>
-      <y>1379</y>
+      <y>1330</y>
       <w>231</w>
       <h>56</h>
     </coordinates>
@@ -242,7 +243,7 @@ Zalogowano użytkownika</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>511</x>
-      <y>1428</y>
+      <y>1379</y>
       <w>84</w>
       <h>91</h>
     </coordinates>
@@ -254,7 +255,7 @@ Przycisk Wyślij</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>413</x>
-      <y>1505</y>
+      <y>1456</y>
       <w>231</w>
       <h>56</h>
     </coordinates>
@@ -268,7 +269,7 @@ Przycisk Wyślij</panel_attributes>
     <id>UMLSpecialState</id>
     <coordinates>
       <x>511</x>
-      <y>1589</y>
+      <y>1540</y>
       <w>14</w>
       <h>14</h>
     </coordinates>
@@ -279,7 +280,7 @@ Przycisk Wyślij</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>511</x>
-      <y>1554</y>
+      <y>1505</y>
       <w>21</w>
       <h>49</h>
     </coordinates>
@@ -291,7 +292,7 @@ Przycisk Wyślij</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>161</x>
-      <y>441</y>
+      <y>392</y>
       <w>154</w>
       <h>77</h>
     </coordinates>
@@ -305,21 +306,21 @@ value1......varchar(100)</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>588</x>
-      <y>301</y>
-      <w>63</w>
+      <x>595</x>
+      <y>252</y>
+      <w>56</w>
       <h>21</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 fg=blue
 lw=2</panel_attributes>
-    <additional_attributes>10.0;10.0;70.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;60.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>329</x>
-      <y>161</y>
+      <y>112</y>
       <w>77</w>
       <h>175</h>
     </coordinates>
@@ -332,7 +333,7 @@ lw=2</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>637</x>
-      <y>182</y>
+      <y>133</y>
       <w>175</w>
       <h>77</h>
     </coordinates>
@@ -350,7 +351,7 @@ status...................varchar(16)
     <id>Relation</id>
     <coordinates>
       <x>805</x>
-      <y>203</y>
+      <y>154</y>
       <w>77</w>
       <h>28</h>
     </coordinates>
@@ -363,7 +364,7 @@ lw=2</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>553</x>
-      <y>49</y>
+      <y>0</y>
       <w>70</w>
       <h>28</h>
     </coordinates>
@@ -374,7 +375,7 @@ lw=2</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>616</x>
-      <y>56</y>
+      <y>7</y>
       <w>147</w>
       <h>21</h>
     </coordinates>
@@ -385,7 +386,7 @@ lw=2</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>749</x>
-      <y>49</y>
+      <y>0</y>
       <w>70</w>
       <h>28</h>
     </coordinates>
@@ -396,7 +397,7 @@ lw=2</panel_attributes>
     <id>UMLState</id>
     <coordinates>
       <x>658</x>
-      <y>112</y>
+      <y>63</y>
       <w>70</w>
       <h>28</h>
     </coordinates>
@@ -407,7 +408,7 @@ lw=2</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>812</x>
-      <y>49</y>
+      <y>0</y>
       <w>56</w>
       <h>42</h>
     </coordinates>
@@ -418,7 +419,7 @@ lw=2</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>609</x>
-      <y>70</y>
+      <y>21</y>
       <w>63</w>
       <h>56</h>
     </coordinates>
@@ -429,7 +430,7 @@ lw=2</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>714</x>
-      <y>70</y>
+      <y>21</y>
       <w>70</w>
       <h>56</h>
     </coordinates>
@@ -440,7 +441,7 @@ lw=2</panel_attributes>
     <id>UMLClass</id>
     <coordinates>
       <x>637</x>
-      <y>469</y>
+      <y>420</y>
       <w>175</w>
       <h>175</h>
     </coordinates>
@@ -466,7 +467,7 @@ price...................number(7,2)
     <id>Relation</id>
     <coordinates>
       <x>609</x>
-      <y>301</y>
+      <y>252</y>
       <w>42</w>
       <h>217</h>
     </coordinates>
@@ -478,63 +479,8 @@ lw=2</panel_attributes>
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>644</x>
-      <y>721</y>
-      <w>231</w>
-      <h>182</h>
-    </coordinates>
-    <panel_attributes>Bill_settings_arch
---
-*_id........................serial PK_*
-from_line1...........varchar(32)
-from_line2...........varchar(32)
-from_line3...........varchar(32)
-from_line4...........varchar(32)
-from_line5...........varchar(32)
-number_prefix...........varchar(16)
-number_suffix...........varchar(16)
-default_payment_reference_1...........varchar(64)
-default_payment_reference_2...........varchar(64)
-default_payment_reference_3...........varchar(64)
-bank_accout_number.....varchar(32)
-transfer_msg..........varchar(32)
-
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
       <x>952</x>
-      <y>721</y>
-      <w>231</w>
-      <h>56</h>
-    </coordinates>
-    <panel_attributes>Bill_settings
---
-*_id........................serial PK_*
-bill_settings_arch_id.............integer not null
-</panel_attributes>
-    <additional_attributes/>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>868</x>
-      <y>735</y>
-      <w>98</w>
-      <h>35</h>
-    </coordinates>
-    <panel_attributes>lt=&lt;-
-fg=blue
-lw=2</panel_attributes>
-    <additional_attributes>10.0;10.0;90.0;10.0;90.0;30.0;120.0;30.0</additional_attributes>
-  </element>
-  <element>
-    <id>UMLClass</id>
-    <coordinates>
-      <x>952</x>
-      <y>826</y>
+      <y>777</y>
       <w>231</w>
       <h>210</h>
     </coordinates>
@@ -564,7 +510,7 @@ email.........................varchar(512)
     <id>UMLClass</id>
     <coordinates>
       <x>1260</x>
-      <y>826</y>
+      <y>777</y>
       <w>168</w>
       <h>182</h>
     </coordinates>
@@ -580,7 +526,7 @@ comment...............varchar(512)
     <id>Relation</id>
     <coordinates>
       <x>1176</x>
-      <y>840</y>
+      <y>791</y>
       <w>98</w>
       <h>35</h>
     </coordinates>
@@ -592,45 +538,21 @@ lw=2</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>602</x>
-      <y>497</y>
-      <w>364</w>
-      <h>462</h>
+      <x>609</x>
+      <y>448</y>
+      <w>357</w>
+      <h>378</h>
     </coordinates>
     <panel_attributes>lt=&lt;-
 fg=blue
 lw=2</panel_attributes>
-    <additional_attributes>20.0;10.0;10.0;640.0;470.0;640.0;470.0;520.0;500.0;520.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>623</x>
-      <y>672</y>
-      <w>336</w>
-      <h>259</h>
-    </coordinates>
-    <panel_attributes>fg=red
-lw=2</panel_attributes>
-    <additional_attributes>10.0;350.0;460.0;10.0</additional_attributes>
-  </element>
-  <element>
-    <id>Relation</id>
-    <coordinates>
-      <x>945</x>
-      <y>707</y>
-      <w>280</w>
-      <h>112</h>
-    </coordinates>
-    <panel_attributes>fg=red
-lw=2</panel_attributes>
-    <additional_attributes>10.0;140.0;380.0;10.0</additional_attributes>
+    <additional_attributes>10.0;10.0;10.0;520.0;490.0;520.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>357</x>
-      <y>315</y>
+      <y>266</y>
       <w>609</w>
       <h>665</h>
     </coordinates>
@@ -638,5 +560,35 @@ lw=2</panel_attributes>
 fg=blue
 lw=2</panel_attributes>
     <additional_attributes>20.0;10.0;10.0;930.0;830.0;930.0;830.0;800.0;850.0;800.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>637</x>
+      <y>616</y>
+      <w>210</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>Registration_rooms
+--
+*_id........................serial PK_*
+registration_id.............integer not null
+room_capacity integer NOT NULL,
+room_count integer NOT NULL DEFAULT 1
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>609</x>
+      <y>644</y>
+      <w>42</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+fg=blue
+lw=2</panel_attributes>
+    <additional_attributes>10.0;10.0;40.0;10.0</additional_attributes>
   </element>
 </diagram>

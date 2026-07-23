@@ -171,11 +171,32 @@ public class RegistrationResource {
     }
 
     private static Response validateClubRequest(ClubRegisterRequestDto request) {
-        if (request == null) {
-            return badRequest("emptyBody");
+        Response commonError = validateGroupRequest(request);
+        if (commonError != null) {
+            return commonError;
         }
         if (request.club() == null || isBlank(request.club().name())) {
             return badRequest("club_name_required");
+        }
+        return null;
+    }
+
+    private static Response validateFamilyRequest(ClubRegisterRequestDto request) {
+        Response commonError = validateGroupRequest(request);
+        if (commonError != null) {
+            return commonError;
+        }
+        int coaches = request.coaches() == null ? 0 : request.coaches().size();
+        int players = request.players() == null ? 0 : request.players().size();
+        if (coaches + players == 0) {
+            return badRequest("family_members_required");
+        }
+        return null;
+    }
+
+    private static Response validateGroupRequest(ClubRegisterRequestDto request) {
+        if (request == null) {
+            return badRequest("emptyBody");
         }
         if (request.contact() == null || isBlank(request.contact().email())) {
             return badRequest("contact_email_required");
@@ -282,6 +303,89 @@ public class RegistrationResource {
         }
 
         long id = service.saveClubRegistration(request);
+        return Response.status(Response.Status.CREATED)
+                .entity(Map.of("id", id, "status", "accepted"))
+                .build();
+    }
+
+    @GET
+    @Path("/family/{uuid}")
+    public Response findFamilyByUuid(@HeaderParam("Authorization") String authToken, @PathParam("uuid") String uuid) {
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+
+        ClubRegisterRequestDto item = service.findFamilyByUuid(uuid);
+        if (item == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found_or_removed"))
+                    .build();
+        }
+        return Response.ok(item).build();
+    }
+
+    @PUT
+    @Path("/family/{uuid}")
+    public Response updateFamilyByUuid(
+            @HeaderParam("Authorization") String authToken,
+            @PathParam("uuid") String uuid,
+            @Valid ClubRegisterRequestDto request) {
+
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+        Response validationError = validateFamilyRequest(request);
+        if (validationError != null) {
+            return validationError;
+        }
+
+        try {
+            service.updateFamilyByUuid(uuid, request);
+            return Response.ok(Map.of("status", "updated")).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found_or_removed"))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "update_failed", "message", ex.getMessage()))
+                    .build();
+        }
+    }
+
+    @DELETE
+    @Path("/family/{uuid}")
+    public Response removeFamilyByUuid(@HeaderParam("Authorization") String authToken, @PathParam("uuid") String uuid) {
+        if (isBlank(uuid)) {
+            return badRequest("invalid_uuid");
+        }
+
+        try {
+            service.removeFamilyByUuid(uuid);
+            return Response.ok(Map.of("status", "removed")).build();
+        } catch (IllegalArgumentException ex) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "not_found_or_removed"))
+                    .build();
+        } catch (Exception ex) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", "remove_failed", "message", ex.getMessage()))
+                    .build();
+        }
+    }
+
+    @POST
+    @Path("/family")
+    public Response saveFamilyRegistration(
+            @HeaderParam("Authorization") String authToken,
+            @Valid ClubRegisterRequestDto request) {
+
+        Response validationError = validateFamilyRequest(request);
+        if (validationError != null) {
+            return validationError;
+        }
+
+        long id = service.saveFamilyRegistration(request);
         return Response.status(Response.Status.CREATED)
                 .entity(Map.of("id", id, "status", "accepted"))
                 .build();

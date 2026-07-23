@@ -17,7 +17,7 @@ public record ClubRegisterRequestDto(
         @Valid Totals totals
 ) {
     public record ClubInfo(
-            @Size (max = 200) @NotBlank String name,
+            @Size(max = 200) String name,
             String nip,
             @Size(max = 120) String streetNo,
             @Size(max = 16) String zip_code,
@@ -68,6 +68,7 @@ public record ClubRegisterRequestDto(
             Integer playersTotalPrice,
             Integer grandTotal
     ) {}
+
 
     public enum Category { KT, GP }
 }

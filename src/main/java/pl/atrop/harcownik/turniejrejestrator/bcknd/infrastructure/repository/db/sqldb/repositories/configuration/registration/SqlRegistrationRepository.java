@@ -62,6 +62,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
     @Inject
     private StatusesFacade statusesFacade;
 
+
     @Override
     @Transactional
     public List<String> findEmails() {
@@ -77,6 +78,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         registration.setEmail(request.email());
         registration.setTotalPrice(BigDecimal.valueOf(request.price()));
         registration.setStatus("u");
+        registration.setRegistrationType("INDIVIDUAL");
         registrationsFacade.create(registration);
 
         // 2) Status (zawsze twórz)
@@ -130,10 +132,11 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         registration.setCity(request.club().city());
         //niedoróbka. Brak kraju na froncie.... club.setCountry(request.club().country());
         registration.setStatus("u");
+        registration.setRegistrationType("CLUB");
 
         registration.setRegistratorName(request.contact().fullName());
         registration.setEmail(request.contact().email());
-        registration.setPhone("" + request.contact().phone());
+        registration.setPhone(request.contact().phone());
         registration.setTotalPrice(BigDecimal.valueOf(request.totals().grandTotal()));
 
         registrationsFacade.create(registration);
@@ -194,6 +197,87 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         });
 
         return registration.getId();
+    }
+
+    @Override
+    public long saveFamily(ClubRegisterRequestDto request) {
+        Registrations registration = new Registrations();
+        registration.setUuid(UUID.randomUUID().toString());
+        registration.setStatus(RegistrationStatus.UNVERIFIED.abbr());
+        registration.setRegistrationType("FAMILY");
+        registration.setClubName(request.club() == null ? null : request.club().name());
+        registration.setNip(null);
+        registration.setStreetNo(null);
+        registration.setZipCode(null);
+        registration.setCity(null);
+        registration.setRegistratorName(request.contact().fullName());
+        registration.setEmail(request.contact().email());
+        registration.setPhone(request.contact().phone());
+        registration.setTotalPrice(BigDecimal.valueOf(request.totals().grandTotal()));
+        registrationsFacade.create(registration);
+
+        Statuses status = createStatus(registration, RegistrationStatus.UNVERIFIED);
+        createCommentIfPresent(status, request.comment());
+        createCoaches(registration, request);
+        createPlayers(registration, request);
+        return registration.getId();
+    }
+
+
+    private void createCommentIfPresent(Statuses status, String commentText) {
+        if (commentText != null) {
+            commentText = commentText.trim();
+            if (!commentText.isEmpty()) {
+                Comments comment = new Comments();
+                comment.setStatusId(status);
+                comment.setComment(commentText);
+                commentsFacade.create(comment);
+            }
+        }
+    }
+
+    private void createCoaches(Registrations registration, ClubRegisterRequestDto request) {
+        if (request.coaches() == null) {
+            return;
+        }
+        request.coaches().forEach(coachDto -> {
+            Coaches coach = new Coaches();
+            coach.setRegistrationId(registration);
+            coach.setFirstname(coachDto.firstname());
+            coach.setLastname(coachDto.lastname());
+            coach.setGender(coachDto.gender());
+            coach.setSupperFri(coachDto.supperFri());
+            coach.setNightFriSat(coachDto.nightFriSat());
+            coach.setDinnerSat(Boolean.TRUE.equals(coachDto.dinnerSat()));
+            coach.setSupperSat(coachDto.supperSat());
+            coach.setNightSatSun(coachDto.nightSatSun());
+            coach.setDinnerSun(coachDto.dinnerSun());
+            coach.setPrice(BigDecimal.valueOf(coachDto.fee() == null ? 0 : coachDto.fee()));
+            coachesFacade.create(coach);
+        });
+    }
+
+    private void createPlayers(Registrations registration, ClubRegisterRequestDto request) {
+        if (request.players() == null) {
+            return;
+        }
+        request.players().forEach(playerDto -> {
+            Players player = new Players();
+            player.setRegistrationId(registration);
+            player.setFirstname(playerDto.firstname());
+            player.setLastname(playerDto.lastname());
+            player.setBirthYear(playerDto.birthYear());
+            player.setGender(playerDto.gender());
+            player.setCategory(playerDto.category() == null ? null : playerDto.category().name());
+            player.setGames(calcGames(playerDto.games()));
+            player.setSupperFri(playerDto.supperFri());
+            player.setNightFriSat(playerDto.nightFriSat());
+            player.setSupperSat(playerDto.supperSat());
+            player.setNightSatSun(playerDto.nightSatSun());
+            player.setDinnerSun(playerDto.dinnerSun());
+            player.setPrice(BigDecimal.valueOf(playerDto.fee() == null ? 0 : playerDto.fee()));
+            playersFacade.create(player);
+        });
     }
 
     private static int calcGames(String s) {
@@ -259,6 +343,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
             statusSpecs.add(createStatusSpecification(s));
         });
 
+
         RegistrationSpecification spec = new RegistrationSpecification(
                 registration.getId(),
                 registration.getUuid(),
@@ -272,6 +357,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
                 registration.getPhone(),
                 registration.getTotalPrice(),
                 RegistrationStatus.getByName(registration.getStatus()),
+                registration.getRegistrationType(),
                 coachSpecs,
                 playerSpecs,
                 statusSpecs
@@ -343,12 +429,12 @@ public class SqlRegistrationRepository implements RegistrationRepository {
     @Override
     public ClubRegisterRequestDto findClubByUuid(String uuid) {
         RegistrationSpecification spec = findByUuid(uuid);
-        if (spec == null || spec.clubName() == null || spec.status() == RegistrationStatus.REMOVED) {
+        if (spec == null || spec.status() == RegistrationStatus.REMOVED) {
             return null;
         }
 
         ClubRegisterRequestDto.ClubInfo club = new ClubRegisterRequestDto.ClubInfo(
-                spec.clubName(),
+                spec.clubName() == null ? "" : spec.clubName(),
                 spec.nip(),
                 spec.streetNo(),
                 spec.zipCode(),
@@ -424,7 +510,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
     @Transactional
     public void updateClubByUuid(String uuid, ClubRegisterRequestDto request) {
         Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
-        if (registration == null || registration.getClubName() == null || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+        if (registration == null || !"CLUB".equals(registration.getRegistrationType()) || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
             throw new IllegalArgumentException("Club registration not found or removed for uuid: " + uuid);
         }
 
@@ -479,6 +565,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
             playersFacade.create(player);
         });
 
+
         Statuses status = createStatus(registration, RegistrationStatus.UNVERIFIED);
 
         String commentText = request.comment();
@@ -493,11 +580,77 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         }
     }
 
+    private void updateCommonGroupRegistration(Registrations registration, ClubRegisterRequestDto request, String registrationType) {
+        if ("CLUB".equals(registrationType)) {
+            registration.setClubName(request.club().name());
+            registration.setNip(request.club().nip());
+            registration.setStreetNo(request.club().streetNo());
+            registration.setZipCode(request.club().zip_code());
+            registration.setCity(request.club().city());
+        } else {
+            registration.setClubName(request.club() == null ? null : request.club().name());
+            registration.setNip(null);
+            registration.setStreetNo(null);
+            registration.setZipCode(null);
+            registration.setCity(null);
+        }
+        registration.setRegistrationType(registrationType);
+        registration.setRegistratorName(request.contact().fullName());
+        registration.setEmail(request.contact().email());
+        registration.setPhone(request.contact().phone());
+        registration.setTotalPrice(BigDecimal.valueOf(request.totals().grandTotal()));
+        registration.setStatus(RegistrationStatus.UNVERIFIED.abbr());
+        registrationsFacade.edit(registration);
+
+        coachesFacade.findListBySthOrderBySth("registrationId", registration, "id", true)
+                .forEach(coachesFacade::remove);
+        playersFacade.findListBySthOrderBySth("registrationId", registration, "id", true)
+                .forEach(playersFacade::remove);
+
+        createCoaches(registration, request);
+        createPlayers(registration, request);
+
+        Statuses status = createStatus(registration, RegistrationStatus.UNVERIFIED);
+        createCommentIfPresent(status, request.comment());
+    }
+
+    @Override
+    public ClubRegisterRequestDto findFamilyByUuid(String uuid) {
+        RegistrationSpecification spec = findByUuid(uuid);
+        if (spec == null || !"FAMILY".equals(spec.registrationType()) || spec.status() == RegistrationStatus.REMOVED) {
+            return null;
+        }
+        return findClubByUuid(uuid);
+    }
+
+    @Override
+    @Transactional
+    public void updateFamilyByUuid(String uuid, ClubRegisterRequestDto request) {
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        if (registration == null || !"FAMILY".equals(registration.getRegistrationType()) || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+            throw new IllegalArgumentException("Family registration not found or removed for uuid: " + uuid);
+        }
+        updateCommonGroupRegistration(registration, request, "FAMILY");
+    }
+
+    @Override
+    @Transactional
+    public void removeFamilyByUuid(String uuid) {
+        Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
+        if (registration == null || !"FAMILY".equals(registration.getRegistrationType()) || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+            throw new IllegalArgumentException("Family registration not found or already removed for uuid: " + uuid);
+        }
+
+        registration.setStatus(RegistrationStatus.REMOVED.abbr());
+        registrationsFacade.edit(registration);
+        createStatus(registration, RegistrationStatus.REMOVED);
+    }
+
     @Override
     @Transactional
     public void removeClubByUuid(String uuid) {
         Registrations registration = registrationsFacade.findOneBySth("uuid", uuid);
-        if (registration == null || registration.getClubName() == null || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
+        if (registration == null || !"CLUB".equals(registration.getRegistrationType()) || RegistrationStatus.REMOVED.abbr().equals(registration.getStatus())) {
             throw new IllegalArgumentException("Club registration not found or already removed for uuid: " + uuid);
         }
 

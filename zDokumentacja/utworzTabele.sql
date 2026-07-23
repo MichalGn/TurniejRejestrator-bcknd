@@ -40,6 +40,7 @@ create table registrations (
 	,email varchar(512) not null unique
 	,phone varchar(128)
 	,total_price numeric(7,2)
+	,registration_type varchar(16) NOT NULL DEFAULT 'CLUB';
 );
 
 create table statuses (
@@ -120,3 +121,9 @@ grant usage, select on general_settings_id_seq, users_id_seq, registrations_id_s
 
 GRANT CREATE ON SCHEMA public TO programturniejrejestrator;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO programturniejrejestrator;
+
+
+----
+
+ALTER TABLE registrations
+ADD COLUMN registration_type varchar(16) NOT NULL DEFAULT 'CLUB';

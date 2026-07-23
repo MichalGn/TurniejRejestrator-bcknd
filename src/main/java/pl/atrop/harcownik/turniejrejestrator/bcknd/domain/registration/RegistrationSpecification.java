@@ -24,6 +24,7 @@ public record RegistrationSpecification(
     String phone,
     BigDecimal totalPrice,
     RegistrationStatus status,
+    String registrationType,
     List<CoachSpecification> coaches,
     List<PlayerSpecification> players,
     List<StatusSpecification> statuses
