@@ -11,6 +11,7 @@ public record PlayerSpecification (
         PersonSpecification personSpec,
         Integer birthYear,
         String category,
-        Integer games
+        Integer games,
+        boolean dinnerSat
         ){
 }

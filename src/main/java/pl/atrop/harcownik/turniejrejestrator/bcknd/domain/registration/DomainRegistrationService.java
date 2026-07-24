@@ -170,7 +170,7 @@ public class DomainRegistrationService implements RegistrationService{
                 games,
                 person.nightFriSat(),
                 person.supperFri(),
-                true,
+                player.dinnerSat(),
                 person.nightSatSun(),
                 person.supperSat(),
                 person.dinnerSun(),

@@ -36,6 +36,7 @@ import java.math.BigDecimal;
     @NamedQuery(name = "Players.findByNightFriSat", query = "SELECT p FROM Players p WHERE p.nightFriSat = :nightFriSat"),
     @NamedQuery(name = "Players.findByNightSatSun", query = "SELECT p FROM Players p WHERE p.nightSatSun = :nightSatSun"),
     @NamedQuery(name = "Players.findBySupperFri", query = "SELECT p FROM Players p WHERE p.supperFri = :supperFri"),
+    @NamedQuery(name = "Players.findByDinnerSat", query = "SELECT p FROM Players p WHERE p.dinnerSat = :dinnerSat"),
     @NamedQuery(name = "Players.findBySupperSat", query = "SELECT p FROM Players p WHERE p.supperSat = :supperSat"),
     @NamedQuery(name = "Players.findByDinnerSun", query = "SELECT p FROM Players p WHERE p.dinnerSun = :dinnerSun"),
     @NamedQuery(name = "Players.findByPrice", query = "SELECT p FROM Players p WHERE p.price = :price"),
@@ -68,6 +69,8 @@ public class Players implements Serializable {
     private Boolean nightSatSun;
     @Column(name = "supper_fri")
     private Boolean supperFri;
+    @Column(name = "dinner_sat")
+    private Boolean dinnerSat;
     @Column(name = "supper_sat")
     private Boolean supperSat;
     @Column(name = "dinner_sun")
@@ -158,6 +161,14 @@ public class Players implements Serializable {
 
     public void setSupperFri(Boolean supperFri) {
         this.supperFri = supperFri;
+    }
+
+    public Boolean getDinnerSat() {
+        return dinnerSat;
+    }
+
+    public void setDinnerSat(Boolean dinnerSat) {
+        this.dinnerSat = dinnerSat;
     }
 
     public Boolean getSupperSat() {

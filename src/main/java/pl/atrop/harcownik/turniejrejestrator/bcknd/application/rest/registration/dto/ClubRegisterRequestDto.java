@@ -59,7 +59,7 @@ public record ClubRegisterRequestDto(
             boolean nightSatSun,
             boolean dinnerSun,
             Integer fee,
-            @NotNull Category category,   // frontend must send "KT"/"GP"
+            @NotNull Category category,   // frontend sends "KT", "GP" or "ZAK"
             @NotNull String games         // frontend sends "1g" or "2g"
     ) {}
 
@@ -70,5 +70,5 @@ public record ClubRegisterRequestDto(
     ) {}
 
 
-    public enum Category { KT, GP }
+    public enum Category { KT, GP, ZAK }
 }

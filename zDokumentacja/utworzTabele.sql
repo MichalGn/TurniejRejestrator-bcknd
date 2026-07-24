@@ -66,6 +66,7 @@ create table players (
 	,category varchar(6)
 	,games integer
 	,night_fri_sat boolean
+	,dinner_sat boolean
 	,night_sat_sun boolean
 	,supper_fri boolean
 	,supper_sat boolean
@@ -125,5 +126,11 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO programturniejrejestrator
 
 ----
 
-ALTER TABLE registrations
-ADD COLUMN registration_type varchar(16) NOT NULL DEFAULT 'CLUB';
+ALTER TABLE players
+    ADD COLUMN IF NOT EXISTS dinner_sat boolean NOT NULL DEFAULT true;
+
+INSERT INTO general_settings (key1, value1) VALUES
+    ('zak_1g_0n', '0'),
+    ('zak_1g_1n', '0'),
+    ('zak_1g_2n', '0')
+ON CONFLICT (key1) DO NOTHING;

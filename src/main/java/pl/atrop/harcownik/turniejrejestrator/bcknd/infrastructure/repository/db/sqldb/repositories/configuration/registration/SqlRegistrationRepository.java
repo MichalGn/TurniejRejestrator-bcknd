@@ -108,8 +108,9 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         player.setBirthYear(request.birthYear());
         player.setGender(request.gender());
         player.setCategory(request.category());
-        player.setGames(calcGames(request.games()));
+        player.setGames("ZAK".equalsIgnoreCase(request.category()) ? 1 : calcGames(request.games()));
         player.setNightFriSat(request.nightFriSat());
+        player.setDinnerSat(request.dinnerSat());
         player.setNightSatSun(request.nightSatSun());
         player.setSupperFri(request.supperFri());
         player.setSupperSat(request.supperSat());
@@ -185,10 +186,10 @@ public class SqlRegistrationRepository implements RegistrationRepository {
             player.setBirthYear(playerDto.birthYear());
             player.setGender(playerDto.gender());
             player.setCategory(playerDto.category().name());
-            player.setGames(calcGames(playerDto.games()));  // <-- String "1g"/"2g"
+            player.setGames(playerDto.category() == ClubRegisterRequestDto.Category.ZAK ? 1 : calcGames(playerDto.games()));  // Żak always plays one game
             player.setSupperFri(playerDto.supperFri());
             player.setNightFriSat(playerDto.nightFriSat());
-            // player.setDinnerSat(Boolean.TRUE.equals(playerDto.dinnerSat()));
+            player.setDinnerSat(Boolean.TRUE.equals(playerDto.dinnerSat()));
             player.setSupperSat(playerDto.supperSat());
             player.setNightSatSun(playerDto.nightSatSun());
             player.setDinnerSun(playerDto.dinnerSun());
@@ -269,9 +270,10 @@ public class SqlRegistrationRepository implements RegistrationRepository {
             player.setBirthYear(playerDto.birthYear());
             player.setGender(playerDto.gender());
             player.setCategory(playerDto.category() == null ? null : playerDto.category().name());
-            player.setGames(calcGames(playerDto.games()));
+            player.setGames(playerDto.category() == ClubRegisterRequestDto.Category.ZAK ? 1 : calcGames(playerDto.games()));
             player.setSupperFri(playerDto.supperFri());
             player.setNightFriSat(playerDto.nightFriSat());
+            player.setDinnerSat(Boolean.TRUE.equals(playerDto.dinnerSat()));
             player.setSupperSat(playerDto.supperSat());
             player.setNightSatSun(playerDto.nightSatSun());
             player.setDinnerSun(playerDto.dinnerSun());
@@ -398,7 +400,8 @@ public class SqlRegistrationRepository implements RegistrationRepository {
                 ),
                 player.getBirthYear(),
                 player.getCategory(),
-                player.getGames()
+                player.getGames(),
+                Boolean.TRUE.equals(player.getDinnerSat())
         );
         return spec;
     }
@@ -470,7 +473,7 @@ public class SqlRegistrationRepository implements RegistrationRepository {
                 p.personSpec().gender(),
                 p.personSpec().supperFri(),
                 p.personSpec().nightFriSat(),
-                true,
+                p.dinnerSat(),
                 p.personSpec().supperSat(),
                 p.personSpec().nightSatSun(),
                 p.personSpec().dinnerSun(),
@@ -555,9 +558,10 @@ public class SqlRegistrationRepository implements RegistrationRepository {
             player.setBirthYear(playerDto.birthYear());
             player.setGender(playerDto.gender());
             player.setCategory(playerDto.category().name());
-            player.setGames(calcGames(playerDto.games()));
+            player.setGames(playerDto.category() == ClubRegisterRequestDto.Category.ZAK ? 1 : calcGames(playerDto.games()));
             player.setSupperFri(playerDto.supperFri());
             player.setNightFriSat(playerDto.nightFriSat());
+            player.setDinnerSat(Boolean.TRUE.equals(playerDto.dinnerSat()));
             player.setSupperSat(playerDto.supperSat());
             player.setNightSatSun(playerDto.nightSatSun());
             player.setDinnerSun(playerDto.dinnerSun());
@@ -693,8 +697,9 @@ public class SqlRegistrationRepository implements RegistrationRepository {
         player.setBirthYear(request.birthYear());
         player.setGender(request.gender());
         player.setCategory(request.category());
-        player.setGames(calcGames(request.games()));
+        player.setGames("ZAK".equalsIgnoreCase(request.category()) ? 1 : calcGames(request.games()));
         player.setNightFriSat(request.nightFriSat());
+        player.setDinnerSat(request.dinnerSat());
         player.setNightSatSun(request.nightSatSun());
         player.setSupperFri(request.supperFri());
         player.setSupperSat(request.supperSat());
@@ -822,7 +827,8 @@ public class SqlRegistrationRepository implements RegistrationRepository {
                         ),
                         null,
                         "trener",
-                        null
+                        null,
+                        Boolean.TRUE.equals(coach.getDinnerSat())
                 ),
                 coach.getDinnerSat()
         );
@@ -845,9 +851,10 @@ public class SqlRegistrationRepository implements RegistrationRepository {
                         ),
                         player.getBirthYear(),
                         player.getCategory(),
-                        player.getGames()
+                        player.getGames(),
+                        Boolean.TRUE.equals(player.getDinnerSat())
                 ),
-                true
+                Boolean.TRUE.equals(player.getDinnerSat())
         );
     }
 

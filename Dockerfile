@@ -6,7 +6,7 @@
 #2.
 #sudo docker build -t turniejrejestrator-bcknd_image .
 
-#sudo docker save -o turniejrejestrator-bcknd-251001.tar turniejrejestrator-bcknd_image   //Zapisanie do pliku
+#sudo docker save -o turniejrejestrator-bcknd-260723.tar turniejrejestrator-bcknd_image   //Zapisanie do pliku
 
 #sudo docker load -i turniejrejestrator-bcknd-250726.tar  //rozpakowanie pliku:
 
