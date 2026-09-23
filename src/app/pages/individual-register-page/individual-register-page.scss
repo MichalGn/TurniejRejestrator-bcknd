@@ -1,0 +1,237 @@
+.page-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center; // center horizontally
+    align-items: flex-start; // keep the form visible from the top
+    background-color: #f5f5f5; // optional, soft background
+    overflow: hidden;
+}
+
+.center-card {
+    padding: 12px 24px 14px;
+    width: min(720px, calc(100vw - 32px));
+    text-align: center;
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: 0px;
+}
+
+.form-title {
+  font-family: 'Roboto', sans-serif; // Or any other font you prefer
+  font-size: 20px;
+  font-weight: normal; //600; // Bold
+  margin: 10px 0 0;
+  text-transform: uppercase; // Optional
+  color: var(--mat-sys-on-surface); // Uses theme text color
+  text-align: center;
+}
+
+// .nights {
+//   display: flex;
+//   gap: 16px;
+//   align-items: center;
+//   margin: 8px 0 16px;
+// }
+
+// .food {
+//   display: flex;
+//   gap: 16px;
+//   align-items: center;
+//   margin: 8px 0 16px;
+// }
+
+// .nights {
+//   display: grid;
+//   grid-template-columns: repeat(2, minmax(0, 1fr));
+//   gap: 12px 24px;
+//   align-items: center;
+//   margin-bottom: 4px;
+// }
+
+// /* make toggles stretch nicely in their cells */
+// .nights mat-slide-toggle { width: 100%; }
+
+// /* force a specific item into the right column */
+// .nights .col-2 { grid-column: 2; }
+
+// /* stack to one column on small screens */
+// @media (max-width: 600px) {
+//   .nights { grid-template-columns: 1fr; }
+//   .nights .col-2 { grid-column: auto; }
+// }
+
+/* make it bigger */
+.cta-btn {
+  height: 72px;          /* bigger height */
+  padding: 0 40px;       /* wider */
+  font-size: 1.25rem;    /* larger text */
+  border-radius: 12px;   /* softer corners */
+  letter-spacing: .02em;
+}
+
+/* optional: make it full width */
+.cta-btn.full {
+  width: 100%;
+}
+
+/* optional: extra shadow */
+.cta-btn.mat-mdc-raised-button {
+  box-shadow: var(--mat-elevation-6);
+}
+
+/* --- price banner --- */
+.price-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  background: #ffebee;      /* light red */
+  color: #b71c1c;           /* deep red text */
+  border: 1px solid #ffcdd2;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &.muted {
+    background: #fff3cd;    /* soft amber for info */
+    color: #7a5b00;
+    border-color: #ffe08a;
+  }
+}
+
+/* --- submit button --- */
+.cta-btn {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 1.05rem;
+  border-radius: 12px;
+  letter-spacing: .02em;
+  box-shadow: var(--mat-elevation-6);
+
+  /* ensure red background even if theme vars don’t paint it */
+  background-color: #d32f2f !important;
+  color: #fff !important;
+
+  &:hover {
+    background-color: #b71c1c !important;
+  }
+
+  &:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+  }
+  margin-bottom: 4px;
+}
+
+.cta-btn.full { width: 100%; }
+
+.two-col-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px; // space between the fields
+
+  // make fields fill their grid cell
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+/* Stack on narrow screens */
+@media (max-width: 600px) {
+  .two-col-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.error-inline { color: #d32f2f; }
+
+.actions-center {
+  display: flex;               /* mat-card-actions is flex by default, this is safe */
+  justify-content: center;     /* center the children */
+}
+
+.success-banner {
+  display: inline-flex;          /* nie rozciąga się na całą szerokość */
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: clamp(16px, 1.1vw + .2rem, 20px);
+  line-height: 1.25;
+
+  /* ciemna zieleń + jasne tło */
+  color: #1b5e20;                /* dark green */
+  background: #e8f5e9;           /* very light green */
+  border: 1px solid #c8e6c9;
+
+  box-shadow: var(--mat-elevation-2);
+}
+
+.success-banner mat-icon {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+/* Compact first registration page so it fits on one screen better */
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  min-height: 0;
+  height: 16px;
+}
+
+:host ::ng-deep .mat-mdc-text-field-wrapper {
+  min-height: 52px;
+}
+
+:host ::ng-deep .mat-mdc-form-field-infix {
+  min-height: 52px;
+  padding-top: 14px;
+  padding-bottom: 8px;
+}
+
+:host ::ng-deep textarea.mat-mdc-input-element {
+  min-height: 42px;
+}
+
+.edit-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  width: 100%;
+}
+
+.delete-registration-btn {
+  width: 100%;
+  height: 42px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.delete-registration-btn mat-icon {
+  margin-right: 6px;
+}
+
+.registration-closed-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid #ef9a9a;
+  border-radius: 10px;
+  background: #ffebee;
+  color: #b71c1c;
+  font-weight: 600;
+}

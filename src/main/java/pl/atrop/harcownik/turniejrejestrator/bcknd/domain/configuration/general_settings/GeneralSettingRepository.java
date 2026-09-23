@@ -15,5 +15,6 @@ public interface GeneralSettingRepository {
     GeneralSettingSpecification findByKey1(String key1);
     String findTitle();
     boolean findSendEmails();
+    boolean findRegistrationClosed();
     String findCcEmails();
 }

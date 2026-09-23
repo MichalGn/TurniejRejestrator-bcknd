@@ -1,0 +1,15 @@
+<div [formGroup]="group" class="page-container">
+  <mat-card class="center-card">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Uwagi / komentarz (opcjonalnie)</mat-label>
+
+      <textarea matInput formControlName="comment" rows="3" maxlength="500"></textarea>
+
+      <mat-hint [align]="'end'">{{ (f.comment.value?.length ?? 0) }}/500</mat-hint>
+
+      @if (f.comment.touched && f.comment.hasError('maxlength')) {
+        <mat-error>Maksymalnie 500 znaków</mat-error>
+      }
+    </mat-form-field>
+  </mat-card>
+</div>

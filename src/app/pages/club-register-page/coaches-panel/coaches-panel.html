@@ -1,0 +1,122 @@
+<div class="table-container">
+    <div class="panel-scroll-x">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8 user-table">
+
+            <ng-container matColumnDef="rowNumber">
+                <th mat-header-cell *matHeaderCellDef style="text-align: right; padding-right: 0px">#</th>
+                <td mat-cell *matCellDef="let element; let i = index" style="text-align: right; padding-right: 0px">
+                    {{ i + 1 }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="firstname">
+                <th mat-header-cell *matHeaderCellDef> Imię </th>
+                <td mat-cell *matCellDef="let user"> {{ user.firstname }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="lastname">
+                <th mat-header-cell *matHeaderCellDef> Nazwisko </th>
+                <td mat-cell *matCellDef="let user"> {{ user.lastname }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="supperFri">
+                <th mat-header-cell *matHeaderCellDef> Kolacja pt </th>
+                <td mat-cell *matCellDef="let u">
+                    <mat-icon [color]="u.supperFri ? 'primary' : 'warn'">
+                        <!-- {{ u.supperFri ? 'check' : 'close' }} -->
+                        {{ u.supperFri ? 'check' : '' }}
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="nightFriSat">
+                <th mat-header-cell *matHeaderCellDef> Nocleg pt/sb </th>
+                <td mat-cell *matCellDef="let u">
+                    <mat-icon class="bool-icon" [color]="u.nightFriSat ? 'primary' : 'warn'">
+                        {{ u.nightFriSat ? 'check' : '' }}
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dinnerSat">
+                <th mat-header-cell *matHeaderCellDef> Obiad sb </th>
+                <td mat-cell *matCellDef="let u">
+                    <mat-icon [color]="u.dinnerSat ? 'primary' : 'warn'">
+                        {{ u.dinnerSat ? 'check' : '' }}
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="supperSat">
+                <th mat-header-cell *matHeaderCellDef> Kolacja sb </th>
+                <td mat-cell *matCellDef="let u">
+                    <mat-icon [color]="u.supperSat ? 'primary' : 'warn'">
+                        {{ u.supperSat ? 'check' : '' }}
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="nightSatSun">
+                <th mat-header-cell *matHeaderCellDef> Nocleg sb/nie </th>
+                <td mat-cell *matCellDef="let u">
+                    <mat-icon [color]="u.nightSatSun ? 'primary' : 'warn'">
+                        {{ u.nightSatSun ? 'check' : '' }}
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="dinnerSun">
+                <th mat-header-cell *matHeaderCellDef> Obiad nie </th>
+                <td mat-cell *matCellDef="let u">
+                    <mat-icon [color]="u.dinnerSun ? 'primary' : 'warn'">
+                        {{ u.dinnerSun ? 'check' : '' }}
+                    </mat-icon>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="active">
+                <th mat-header-cell *matHeaderCellDef> Aktywny </th>
+                <td mat-cell *matCellDef="let user">
+                    @if(user.active) {
+                    <mat-icon color="primary">check</mat-icon>
+                    } @else {
+                    <mat-icon color="warn">close</mat-icon>
+                    }
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="fee">
+                <th mat-header-cell *matHeaderCellDef> Opłata </th>
+                <td mat-cell *matCellDef="let u">
+                    {{ u.fee | currency:'PLN':'symbol':'1.2-2':'pl' }}
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="actions-header">
+                    <button mat-mini-fab type="button" color="primary" [disabled]="readOnly" matTooltip="+ Trener" (click)="openDialog()">
+                        <mat-icon class="button-icon">add</mat-icon>
+                    </button>
+                </th>
+                <td mat-cell *matCellDef="let user" class="actions-cell">
+                    <button mat-icon-button type="button" color="primary" [disabled]="readOnly" (click)="editUser(user)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button type="button" color="warn" [disabled]="readOnly" (click)="delete(user)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky:true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+
+
+        @if (loading) {
+        <div class="loading-spinner">
+            <mat-progress-spinner mode="indeterminate" color="accent"></mat-progress-spinner>
+        </div>
+        }
+    </div>
+</div>

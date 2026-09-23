@@ -1,0 +1,100 @@
+<mat-sidenav-container class="shell">
+  <mat-sidenav #drawer class="left-nav" [mode]="isHandset ? 'over' : 'side'" [opened]="!isHandset">
+
+    <!-- TOP items -->
+    <mat-nav-list>
+      <a mat-list-item routerLink="/admin/unverifiedRegistration" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()"
+        aria-label="Niezweryfikowane zgłoszenia">
+        <mat-icon matListItemIcon>hourglass_empty</mat-icon>
+        <span matListItemTitle matBadge="{{statusCnts.unverifiedCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large" style="margin-top:50px"
+          [matBadgeHidden]="!(statusCnts.unverifiedCnt > 0)">Zgł. niezweryfikow.</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/verifiedRegistration" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>check_circle</mat-icon>
+        <span matListItemTitle matBadge="{{statusCnts.verifiedCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large" class="badge-neutral"
+          [matBadgeHidden]="!(statusCnts.verifiedCnt > 0)">Zgł. zweryfikowane</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/removedRegistration" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>delete</mat-icon>
+        <span matListItemTitle matBadge="{{statusCnts.removedCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large" class="badge-neutral"
+          [matBadgeHidden]="!(statusCnts.removedCnt > 0)">Zgł. usunięte</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/all" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" style="margin-top: 20px;" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>article</mat-icon>
+        <span matListItemTitle  matBadge="{{statusCnts.allCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large"  class="badge-neutral">Wszyscy</span>
+      </a>
+
+      
+      <a mat-list-item routerLink="/admin/coaches" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>article</mat-icon>
+        <span matListItemTitle  matBadge="{{statusCnts.coachesCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large"  class="badge-neutral">Trenerzy</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/players" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>article</mat-icon>
+        <span matListItemTitle  matBadge="{{statusCnts.playersCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large"  class="badge-neutral">Zawodnicy</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/bills" style="margin-top: 20px;" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>receipt_long</mat-icon>
+        <span matListItemTitle matBadge="{{billCnt}}" matBadgeOverlap="false"
+          matBadgePosition="below after" matBadgeSize="large" class="badge-neutral"
+          [matBadgeHidden]="!(billCnt > 0)">Rachunki</span>
+      </a>
+    </mat-nav-list>
+
+    <mat-divider class="nav-divider" style="margin-top: 20px;"></mat-divider>
+
+    <!-- BOTTOM items (stick to bottom) -->
+    <mat-nav-list class="bottom-nav">
+      <a mat-list-item routerLink="/admin/users" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>group</mat-icon>
+        <span matListItemTitle>Użytkownicy</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/settings" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>settings</mat-icon>
+        <span matListItemTitle>Ustawienia</span>
+      </a>
+
+      <a mat-list-item routerLink="/admin/panel" routerLinkActive="mdc-list-item--activated"
+        [routerLinkActiveOptions]="{ exact: true }" (click)="isHandset && drawer.close()">
+        <mat-icon matListItemIcon>admin_panel_settings</mat-icon>
+        <span matListItemTitle>Panel administratora</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    @if (isHandset) {
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="drawer.toggle()">
+        <mat-icon>menu</mat-icon>
+      </button>
+      <span class="flex-1"></span>
+    </mat-toolbar>
+    }
+
+    <!-- <router-outlet></router-outlet> -->
+    <router-outlet (activate)="onChildActivate($event)"></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+<!-- <pre>statusCnts={{statusCnts  | json}}</pre> -->

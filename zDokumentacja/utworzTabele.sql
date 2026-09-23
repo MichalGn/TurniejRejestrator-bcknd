@@ -12,7 +12,7 @@ drop table general_settings cascade;
 create table general_settings (
 	id SERIAL PRIMARY KEY
 	,key1 varchar(32) unique
-	,value1 varchar(100)
+	,value1 varchar(128)
 );
 
 create table users (
@@ -126,11 +126,4 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO programturniejrejestrator
 
 ----
 
-ALTER TABLE players
-    ADD COLUMN IF NOT EXISTS dinner_sat boolean NOT NULL DEFAULT true;
-
-INSERT INTO general_settings (key1, value1) VALUES
-    ('zak_1g_0n', '0'),
-    ('zak_1g_1n', '0'),
-    ('zak_1g_2n', '0')
-ON CONFLICT (key1) DO NOTHING;
+ALTER TABLE general_settings ALTER COLUMN value1 TYPE VARCHAR(128);

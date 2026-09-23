@@ -1,0 +1,102 @@
+@use '@angular/material' as mat;
+
+// Correct color roles for Material 3
+$my-theme: mat.define-theme((
+  color: (
+    primary: mat.$cyan-palette,
+    tertiary: mat.$orange-palette,
+  ),
+  //density: mat.define-density(0)
+));
+
+// Apply component themes and CSS variables
+@include mat.all-component-themes($my-theme);
+
+html,body {
+  @include mat.theme($my-theme);
+  height: 100%;
+  margin: 0;
+  color-scheme: light;
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  //  overflow: hidden;
+  //font-family: Roboto , "Helvetica Neue", sans-serif;
+  
+}
+
+// body {
+//   margin: 0;
+//   font-family: Roboto, "Helvetica Neue", sans-serif;
+// }
+
+// h1, h2, h3 {
+//   font-family: 'Roboto Slab', serif; /* lub inna czcionka */
+//   font-weight: 600;
+//   font-size: 1.8rem; /* dopasuj rozmiar */
+//   color: #333; /* dopasuj kolor */
+// }
+
+
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+// Sekcja ze snackiem
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__surface {
+  background-color: #4caf50 !important;
+}
+.mat-mdc-snack-bar-container.success-snackbar .mdc-snackbar__label {
+  color: white !important;
+}
+
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__surface {
+  background-color: #d32f2f !important;
+}
+.mat-mdc-snack-bar-container.error-snackbar .mdc-snackbar__label {
+  color: white !important;
+}
+// ===
+
+.error-message {
+  color: red;
+  margin-top: -25px;
+  font-size: 12px;
+}
+
+.page-title {  //nagłówek strony
+  font-family: 'Roboto', sans-serif;
+  font-size: 2rem;       /* ~32px */
+  font-weight: 600;
+  color: #1565c0;        /* Material Blue 800 */
+  margin: 0 0 1rem 0;    /* space below title */
+}
+
+
+/* Sekcja z dialogami */
+/* Make the dialog a flex column */
+.bill-dialog-fill .mat-mdc-dialog-container .mdc-dialog__surface {
+  height: 100%;                 /* respect the height from open() */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Let the middle area expand (no inner scrollbar cap) */
+.bill-dialog-fill .mat-mdc-dialog-content {
+  flex: 1 1 auto;               /* fill the available space */
+  max-height: none;             /* remove Material's inner cap */
+  overflow: auto;               /* scroll only if still needed */
+  /* if you want ZERO inner scrolling, use overflow: visible; */
+}
+
+/* Keep the buttons at the very bottom */
+.bill-dialog-fill .mat-mdc-dialog-actions {
+  margin-top: auto;             /* push actions to bottom */
+  padding: 16px 24px;           /* (optional) nicer spacing */
+}
+
+/* === */

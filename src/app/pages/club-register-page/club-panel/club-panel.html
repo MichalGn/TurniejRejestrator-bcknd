@@ -1,0 +1,52 @@
+<div [formGroup]="group" class="page-container">
+  <mat-card class="center-card">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>{{ familyMode ? 'Nazwa klubu (opcjonalnie)' : 'Nazwa klubu' }}</mat-label>
+      <input matInput formControlName="name" maxlength="200" />
+      @if (f.name.touched && f.name.hasError('required')) {
+        <mat-error>Nazwa klubu jest wymagana.</mat-error>
+      }
+      @if (f.name.touched && f.name.hasError('maxlength')) {
+        <mat-error>Nazwa klubu może mieć maksymalnie 200 znaków.</mat-error>
+      }
+    </mat-form-field>
+
+    @if (!familyMode) {
+      <div class="two-col-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>NIP</mat-label>
+          <input matInput formControlName="nip" inputmode="numeric" autocomplete="off" (input)="onNipInput($event)" />
+          <button
+            mat-icon-button
+            matSuffix
+            type="button"
+            matTooltip="Pobierz dane z GUS"
+            [disabled]="!canLoadFromGus"
+            (click)="loadFromGus()">
+            <mat-icon>{{ gusLoading ? 'hourglass_top' : 'manage_search' }}</mat-icon>
+          </button>
+          @if (f.nip.touched && f.nip.hasError('pattern')) {
+            <mat-error>NIP musi zawierać wyłącznie cyfry (maksymalnie 10).</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ulica i numer</mat-label>
+          <input matInput formControlName="streetNo" />
+        </mat-form-field>
+      </div>
+
+      <div class="two-col-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Kod pocztowy</mat-label>
+          <input matInput formControlName="zip_code" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Miejscowość</mat-label>
+          <input matInput formControlName="city" />
+        </mat-form-field>
+      </div>
+    }
+  </mat-card>
+</div>

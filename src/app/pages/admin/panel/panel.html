@@ -1,0 +1,33 @@
+<h1 class="page-title" style="margin-left:16px; margin-top:12px">Panel administratora</h1>
+
+<div class="list-container">
+  <div class="admin-row">
+    <span class="label">Zgłoszenia:</span>
+    <span class="value">
+      <button mat-stroked-button class="admin-action-button" (click)="deleteAllRegistrations()" [disabled]="loading">
+        <mat-icon>delete_sweep</mat-icon>
+        Usuń wszystkie zgłoszenia
+      </button>
+    </span>
+  </div>
+
+  <div class="admin-row">
+    <span class="label">Rachunki:</span>
+    <span class="value">
+      <button mat-stroked-button class="admin-action-button" (click)="deleteAllBills()" [disabled]="loading">
+        <mat-icon>receipt_long</mat-icon>
+        Usuń wszystkie rachunki
+      </button>
+    </span>
+  </div>
+
+  @if (loading) {
+    <div class="admin-row">
+      <span class="label"></span>
+      <span class="value loading-row">
+        <mat-spinner diameter="28"></mat-spinner>
+        <span>Trwa wykonywanie operacji...</span>
+      </span>
+    </div>
+  }
+</div>

@@ -1,0 +1,75 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-dialog-container {
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+mat-dialog-content {
+  overflow: auto;
+  max-height: 80vh;
+  height: 450px;
+}
+
+
+// .page-container {
+//     position: relative;
+//     height: 100%;
+//     width: 100%;
+//     display: flex;
+//     justify-content: center; // center horizontally
+//     align-items: center; // center vertically
+//     background-color: #f5f5f5; // optional, soft background
+// }
+
+// .center-card {
+//     padding: 24px;
+//     width: 600px;
+//     text-align: center;
+// }
+
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+mat-dialog-content {
+  min-width: 640px;
+}
+
+@media (max-width: 760px) {
+  mat-dialog-content {
+    min-width: 0;
+  }
+}
+
+
+.price-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  background: #ffebee;
+  color: #b71c1c;
+  border: 1px solid #ffcdd2;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}

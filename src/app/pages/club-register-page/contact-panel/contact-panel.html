@@ -1,0 +1,58 @@
+<div [formGroup]="group" class="page-container">
+    <mat-card class="center-card">
+
+        <!-- Imię i nazwisko (opcjonalnie) -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Imię i nazwisko osoby rejestrującej (opcjonalnie)</mat-label>
+            <input matInput formControlName="fullName" autocomplete="name" />
+        </mat-form-field>
+
+        <!-- Email -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+
+            @if ((f.email.touched || f.email.dirty) && f.email.hasError('email')) {
+            <mat-error>Podaj poprawny email</mat-error>
+            }
+            @if ((f.email.touched || f.email.dirty) && f.email.hasError('emailTaken')) {
+            <mat-error>Email wykorzystany!</mat-error>
+            }
+        </mat-form-field>
+        
+        <!-- <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email</mat-label>
+            <input matInput type="email" formControlName="email" />
+            @if ((f.email.touched || f.email.dirty) && f.email.invalid) {
+            <mat-error>Podaj poprawny email</mat-error>
+            }
+            @if (f.email.valid && emailExists) {
+            <mat-hint [align]="'end'" class="error-inline">Email wykorzystany!</mat-hint>
+            }
+        </mat-form-field> -->
+
+        <!-- Powtórz email -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Powtórz email</mat-label>
+            <input matInput type="email" formControlName="repeatEmail" autocomplete="email" />
+            <!-- @if ((f.repeatEmail.touched || f.repeatEmail.dirty) && group.hasError('emailMismatch')) {
+            <mat-error>E-maile nie są takie same!</mat-error>
+            } -->
+
+            <!-- @* before: group.hasError('emailMismatch') *@ -->
+            @if ((f.repeatEmail.touched || f.repeatEmail.dirty) && f.repeatEmail.hasError('emailMismatch')) {
+            <mat-error>E-maile nie są takie same!</mat-error>
+            }
+        </mat-form-field>
+
+        <!-- Telefon (opcjonalnie) -->
+        <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Telefon kontaktowy (opcjonalnie)</mat-label>
+            <input matInput type="tel" formControlName="phone" placeholder="np. +48 500 600 700" autocomplete="tel" />
+            @if ((f.phone.touched || f.phone.dirty) && f.phone.hasError('pattern')) {
+            <mat-error>Nieprawidłowy numer telefonu (opcjonalnie)</mat-error>
+            }
+        </mat-form-field>
+
+    </mat-card>
+</div>

@@ -75,6 +75,21 @@ public class SqlGeneralSettingRepository implements GeneralSettingRepository{
     }
 
     @Override
+    public boolean findRegistrationClosed() {
+        String value = findByKey1("registrationClosed").value1();
+        if (value == null) {
+            return false;
+        }
+        String normalized = value.trim().toLowerCase();
+        return normalized.equals("true")
+                || normalized.equals("1")
+                || normalized.equals("yes")
+                || normalized.equals("y")
+                || normalized.equals("tak")
+                || normalized.equals("t");
+    }
+
+    @Override
     public String findCcEmails() {
         return findByKey1("ccEmails").value1().trim();
     }

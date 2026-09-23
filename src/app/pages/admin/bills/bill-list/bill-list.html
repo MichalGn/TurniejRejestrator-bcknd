@@ -1,0 +1,100 @@
+<app-list-header [title]="'Lista rachunków'" [removeAllAreYouSure]="'Czy na pewno usunąć wszystkich użytkowników?'"
+    [removeAllConfirmation]="'Wszyscy użytkownicy usunięci prawidłowo'" [showAll]="'Pokaż wszystkich użytkowników'"
+    [showOnlyActive]="'Pokaż użytkowników aktywnych'" [service]=service [itemsDataSource]="dataSource"
+    (itemsDataSourceChanged)="handleDataSourceChanged()" (loadingChanged)="handleLoadingChanged()"
+    (exportToCsvFile)="handleExportToCsvFile()"  (exportShortToPdfFile)="handleExportToPdfFile()" (exportFullToPdfFile)="handleExportToPdfFile()">
+</app-list-header>
+
+<div class="table-container">
+    <div class="table-scroll">
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 user-table">
+
+            <ng-container matColumnDef="rowNumber">
+                <th mat-header-cell *matHeaderCellDef style="text-align: right; padding-right: 0px">#</th>
+                <td mat-cell *matCellDef="let element; let i = index" style="text-align: right; padding-right: 0px">
+                      {{ (dataSource.filteredData.length || dataSource.data.length) - i }}
+                </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="billFullNumber">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right"> Numer rachunku </th>
+                <td mat-cell *matCellDef="let item" class="text-right"> {{ item.billFullNumber }} </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="datetime">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right"> Data </th>
+
+                <td mat-cell *matCellDef="let item" class="text-right">
+                    @let dt = toDate(item .datetime);
+                    {{ dt ? (dt | date:'yyyy-MM-dd HH:mm:ss':'Europe/Warsaw':'pl-PL') : '—'}}
+                </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="clubName">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef> Klub </th>
+                <td mat-cell *matCellDef="let item"> {{ item.clubName }}, {{ item.streetNo }} {{ item.city }} </td>
+                <td mat-footer-cell *matFooterCellDef class="text-right"></td>
+            </ng-container>
+
+            <ng-container matColumnDef="purchaser">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef> Nabywca </th>
+                <td mat-cell *matCellDef="let item"> {{ item.purchaser }} </td>
+                <td mat-footer-cell *matFooterCellDef class="text-right"><strong>RAZEM:</strong></td>
+            </ng-container>
+
+            <ng-container matColumnDef="billTotalValueCash">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-right"> Gotówka [PLN] </th>
+                <td mat-cell *matCellDef="let item" class="text-right"> {{ item.billTotalValueCash |
+                    currency:'PLN':'symbol':'1.2-2':'pl-PL' }} </td>
+                <td mat-footer-cell *matFooterCellDef class="text-right">
+                    <strong>{{ totalCash | currency:'PLN':'symbol':'1.2-2':'pl-PL' }}</strong>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="billTotalValueTransfer">
+                <th mat-header-cell mat-sort-header *matHeaderCellDef class="text-right"> Przelew [PLN]</th>
+                <td mat-cell *matCellDef="let item" class="text-right"> {{ item.billTotalValueTransfer |
+                    currency:'PLN':'symbol':'1.2-2':'pl-PL' }} </td>
+                <td mat-footer-cell *matFooterCellDef class="text-right">
+                    <strong>{{ totalTransfer | currency:'PLN':'symbol':'1.2-2':'pl-PL' }}</strong>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="actions-header">
+                    <button mat-mini-fab type="button" color="primary" matTooltip="+ Rachunek"
+                        (click)="addBill()">
+                        <mat-icon class="button-icon">add</mat-icon>
+                    </button>
+                </th>
+                <td mat-cell *matCellDef="let item" class="actions-cell">
+                    <button mat-icon-button color="primary" (click)="editBill(item)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" (click)="deleteBill(item)">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                     <button mat-icon-button color="warn" (click)="exportBillToPdf(item)">
+                        <mat-icon>picture_as_pdf</mat-icon>
+                    </button>
+                </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky:true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
+        </table>
+
+
+        @if (loading) {
+        <div class="loading-spinner">
+            <mat-progress-spinner mode="indeterminate" color="accent"></mat-progress-spinner>
+        </div>
+        }
+    </div>
+    <!-- <pre>dataSource.dat: {{dataSource.data | json}}</pre> -->
+</div>

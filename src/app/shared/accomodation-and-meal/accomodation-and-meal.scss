@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  width: 100%;
+  text-align: left;      // override parent card centering
+}
+
+.nights {
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  gap: 10px 20px;
+  align-items: center;
+  justify-content: start;
+  justify-items: start;
+  margin: 4px 0 10px;
+}
+
+/* don't stretch the toggle; keep it left */
+.nights mat-slide-toggle {
+  width: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .nights {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}

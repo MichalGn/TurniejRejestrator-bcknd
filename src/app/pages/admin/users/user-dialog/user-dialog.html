@@ -1,0 +1,82 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<form #userForm="ngForm">
+    <mat-dialog-content>
+        <!-- <p>Dane użytkownika</p> -->
+        <div class="dialog-form">
+            <mat-form-field class="form-field">
+                <mat-label>Użytkownik</mat-label>
+                <input matInput [(ngModel)]="username" required autocomplete="username"
+                    [ngModelOptions]="{standalone: true}" (ngModelChange)="onUsernameChange($event)"/>
+            </mat-form-field>
+
+            <div class="error-message">
+                @if(usernameExists) {
+                Użytkownik już istnieje!!
+                } @else {
+                &nbsp;
+                }
+            </div>
+
+            <mat-form-field class="form-field">
+                <mat-label>Imię</mat-label>
+                <input matInput [(ngModel)]="firstname" autocomplete="firstname"
+                    [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Nazwisko</mat-label>
+                <input matInput [(ngModel)]="lastname" autocomplete="lastname" [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            @if (edit) {
+                <mat-checkbox class="form-field" [(ngModel)]="changePassword" [ngModelOptions]="{standalone: true}">
+                    Zmień hasło
+                </mat-checkbox>
+            }
+            <mat-form-field class="form-field">
+                <mat-label>Hasło</mat-label>
+                <input matInput type="password" [(ngModel)]="password" required placeholder="Wpisz hasło"
+                    autocomplete="current-password" [ngModelOptions]="{standalone: true}" autocomplete="new-password" 
+                    [required]="changePassword" [disabled]="edit && !changePassword"/>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Powtórz Hasło</mat-label>
+                <input matInput type="password" [(ngModel)]="repeatPassword" [ngModelOptions]="{standalone: true}"
+                    autocomplete="current-password" required autocomplete="new-password" placeholder="Powtórz hasło" 
+                    [required]="changePassword" [disabled]="edit && !changePassword"/>
+            </mat-form-field>
+
+            @if(password!==repeatPassword) {
+                <div class="error-message">
+                    Hasła nie są takie same!
+                </div>
+            } @else {
+                <div style="margin-top:12px"></div>
+            }
+
+            <div class="form-checkbox-group">
+                <mat-checkbox [(ngModel)]="isAdmin" [ngModelOptions]="{ standalone: true }">
+                    Admin
+                </mat-checkbox>
+            </div>
+            @if (edit) {
+                <div class="form-checkbox-group">
+                <mat-checkbox [(ngModel)]="isActive" [ngModelOptions]="{ standalone: true }">
+                    Aktywność
+                </mat-checkbox>
+            </div>
+            }
+
+
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <button mat-button (click)="onNoClick()">Anuluj</button>
+        <button mat-button (click)="edit ? onEditClick() : onAddClick()" 
+            [disabled]="userForm.invalid || username.length===0 || password.length===0 || password!==repeatPassword">
+            {{ buttonDesc }}
+        </button>
+    </mat-dialog-actions>
+</form>

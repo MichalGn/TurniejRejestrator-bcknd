@@ -1,0 +1,23 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap:10x;
+  width: 100%;
+}
+
+.form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-dialog-container {
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+mat-dialog-content {
+  overflow: auto;
+  max-height: 80vh;
+  height: 550px;
+}
+

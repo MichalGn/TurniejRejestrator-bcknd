@@ -1,0 +1,66 @@
+/* Horizontal scroll only when needed */
+.panel-scroll-x {
+  overflow-x: auto;
+  overflow-y: visible;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch; /* smooth on iOS */
+  overscroll-behavior-x: contain;    /* no scroll chaining */
+}
+
+/* Let the inner component grow beyond the container when it needs to */
+.panel-scroll-x app-players-panel {
+  display: block;
+  width: max-content; /* size to content width */
+  min-width: 100%;    /* but never smaller than the container */
+}
+
+/* (Optional) If your players table has very many columns, set a floor: */
+/* .panel-scroll-x app-players-panel { min-width: 1200px; } */
+
+
+// .page-container {
+//     position: relative;
+//     height: 100%;
+//     width: 100%;
+//     display: flex;
+//     justify-content: center; // center horizontally
+//     align-items: center; // center vertically
+//     background-color: #f5f5f5; // optional, soft background
+// }
+
+// .center-card {
+//     padding: 24px;
+//     width: 600px;
+//     text-align: center;
+// }
+
+// .nights {
+//   display: grid;
+//   grid-template-columns: repeat(2, minmax(0, 1fr));
+//   gap: 12px 24px;
+//   align-items: center;
+//   margin-bottom: 10px;
+// }
+
+// /* make toggles stretch nicely in their cells */
+// .nights mat-slide-toggle { width: 100%; }
+
+// /* force a specific item into the right column */
+// .nights .col-2 { grid-column: 2; }
+
+// /* stack to one column on small screens */
+// @media (max-width: 600px) {
+//   .nights { grid-template-columns: 1fr; }
+//   .nights .col-2 { grid-column: auto; }
+// }
+
+// .two-col-row {
+//   display: grid;
+//   grid-template-columns: 1fr 1fr;
+//   gap: 16px; // space between the fields
+
+//   // make fields fill their grid cell
+//   mat-form-field {
+//     width: 100%;
+//   }
+// }

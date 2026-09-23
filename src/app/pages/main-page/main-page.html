@@ -1,0 +1,35 @@
+<section class="hero">
+  <div class="actions">
+    <button mat-fab extended class="fab fab--primary"
+      [disabled]="registrationClosed"
+      [routerLink]="registrationClosed ? null : '/individualRegister'"
+      matTooltip="Jedna osoba" matTooltipPosition="below">
+      <mat-icon>person</mat-icon>
+      Rejestracja indywidualna
+    </button>
+
+    <button mat-fab extended class="fab fab--tertiary"
+      [disabled]="registrationClosed"
+      [routerLink]="registrationClosed ? null : '/clubRegister'"
+      matTooltip="Trenerzy w pokoju trenerów, zawodnicy w pokoju zawodników" matTooltipPosition="below">
+      <mat-icon>groups</mat-icon>
+      Rejestracja klubowa
+    </button>
+
+    <button mat-fab extended class="fab fab--secondary"
+      [disabled]="registrationClosed"
+      [routerLink]="registrationClosed ? null : '/familyRegister'"
+      matTooltip="Wspólny pokój dla opiekunów i zawodników" matTooltipPosition="below">
+      <mat-icon>family_restroom</mat-icon>
+      Rejestracja rodzinna
+    </button>
+  </div>
+
+  @if (registrationClosed) {
+    <div class="registration-closed-banner" role="status">
+      <mat-icon>lock</mat-icon>
+      Rejestracja zamknięta
+    </div>
+  }
+
+</section>

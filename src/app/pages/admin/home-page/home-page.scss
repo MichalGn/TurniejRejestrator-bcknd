@@ -1,0 +1,49 @@
+.shell {
+  height: calc(100vh - 80px);
+}
+
+/* Drawer */
+.left-nav {
+  width: 240px;
+  padding-top: 20px;
+  background: #f5f7fa;
+  border-right: 1px solid rgba(0, 0, 0, .08);
+}
+
+/* Make inner container flex so spacer can push the bottom list down */
+.left-nav .mat-drawer-inner-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Bottom list (no need for margin-top:auto anymore) */
+.bottom-nav {
+  padding-bottom: 12px;
+}
+
+.nav-divider {
+  margin: 8px 0;
+  opacity: .5;
+}
+
+.nav-title-with-badge {
+  display: inline-block;
+  overflow: visible;
+}
+
+:host ::ng-deep .nav-title-with-badge .mat-badge-content {
+  top: -6px;
+  right: -18px;
+}
+
+@media (max-width: 900px) {
+  .left-nav { border-right: none; }
+}
+
+.flex-1 { flex: 1 1 auto; }
+
+.badge-neutral ::ng-deep .mat-badge-content {
+  background: #9e9e9e;
+  color: #fff;
+}

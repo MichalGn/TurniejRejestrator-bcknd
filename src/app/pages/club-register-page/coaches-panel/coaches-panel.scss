@@ -1,0 +1,15 @@
+/* Horizontal scroll only when needed */
+.panel-scroll-x {
+  overflow-x: auto;
+  overflow-y: visible;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch; /* smooth on iOS */
+  overscroll-behavior-x: contain;    /* no scroll chaining */
+}
+
+/* Let the inner component grow beyond the container when it needs to */
+.panel-scroll-x app-players-panel {
+  display: block;
+  width: max-content; /* size to content width */
+  min-width: 100%;    /* but never smaller than the container */
+}

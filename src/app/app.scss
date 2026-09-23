@@ -1,0 +1,51 @@
+.app-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  /* center horizontally */
+  align-items: center;
+  /* center vertically */
+  padding: 0 24px;
+
+  background-color: #cceeff; // light sky blue
+  color: #003366; // dark blue text for contrast
+}
+
+// .toolbar-title {
+//     font-size: 18px;
+//     font-weight: 600;
+// }
+
+:host {
+  display: block;
+  padding-top: 64px; // to offset the fixed toolbar height
+  height: calc(100vh - 64px);
+}
+
+.display-right {
+  position: absolute;
+  right: 38px;
+}
+
+@media screen and (max-width: 600px) {
+  div.display-right {
+    display: none;
+  }
+}
+
+button {
+  background: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
+}
+
+.nav-button,
+.login-button {
+  cursor: pointer;
+}

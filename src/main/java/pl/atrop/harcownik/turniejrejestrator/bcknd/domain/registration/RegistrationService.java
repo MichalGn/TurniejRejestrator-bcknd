@@ -14,6 +14,7 @@ import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration
  */
 
 public interface RegistrationService {
+    boolean isRegistrationClosed();
     long saveIndividual(IndividualRegisterRequestDto request);
     long saveClubRegistration(ClubRegisterRequestDto request);
     long saveFamilyRegistration(ClubRegisterRequestDto request);

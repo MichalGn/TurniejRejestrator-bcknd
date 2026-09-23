@@ -1,0 +1,19 @@
+.lv {
+    display: inline-flex;
+    gap: .2rem;
+    align-items: baseline;
+    font-size: 14px;
+}
+
+.lv__label {
+    font-weight: 600;
+    color: #555;
+}
+
+.lv__sep {
+    color: #bbb;
+}
+
+.lv__value {
+    color: #222;
+}

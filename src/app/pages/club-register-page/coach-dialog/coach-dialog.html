@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<form #form="ngForm">
+    <mat-dialog-content>
+        <!-- <p>Dane użytkownika</p> -->
+        <div class="dialog-form">
+            <mat-form-field class="form-field">
+                <mat-label>Imię</mat-label>
+                <input matInput [(ngModel)]="firstname" autocomplete="firstname"
+                    [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Nazwisko</mat-label>
+                <input matInput [(ngModel)]="lastname" autocomplete="lastname" [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            <app-accomodation-and-meal [group]="accGroup" [disableDinnerSat]="false">
+            </app-accomodation-and-meal>
+            @if (!familyMode) {
+            <mat-form-field class="form-field">
+                <mat-label>Pokój</mat-label>
+                <mat-select [(ngModel)]="gender" name="gender" (selectionChange)="onGenderChange($event.value)">
+                    <mat-option value="m">Pokój męski</mat-option>
+                    <mat-option value="f">Pokój damski</mat-option>
+                    <mat-option value="s">Pokój jednoosobowy</mat-option>
+                </mat-select>
+            </mat-form-field>
+            }
+
+            <div class="price-banner">
+                <mat-icon>payments</mat-icon>
+                Do zapłaty: <strong>{{ totalPrice | currency:'PLN':'symbol':'1.0-0':'pl' }}</strong>
+            </div>
+
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <button mat-button type="button" (click)="onNoClick()">Anuluj</button>
+        <button mat-button type="button" (click)="edit ? onEditClick() : onAddClick()" [disabled]="form.invalid">
+            {{ buttonDesc }}
+        </button>
+    </mat-dialog-actions>
+</form>

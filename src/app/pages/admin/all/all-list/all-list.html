@@ -1,0 +1,147 @@
+<app-list-header [title]=title [removeAllAreYouSure]="'Czy na pewno usunąć wszystkich użytkowników?'"
+    [removeAllConfirmation]="'Wszyscy użytkownicy usunięci prawidłowo'" [showAll]="'Pokaż wszystkich użytkowników'"
+    [showOnlyActive]="'Pokaż użytkowników aktywnych'" [service]=service [itemsDataSource]="dataSource" [showCoupons]="true"
+    (itemsDataSourceChanged)="handleDataSourceChanged($event)" (loadingChanged)="handleLoadingChanged($event)"
+    (exportToCsvFile)="handleExportToCsvFile()" (exportShortToPdfFile)="handleExportToPdfFile()" (exportFullToPdfFile)="handleExportToPdfFile()" (couponRequested)="handleCouponRequest($event)"
+    >
+</app-list-header>
+
+<div class="table-container">
+    <div class="table-scroll">
+        <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 user-table">
+
+            <!-- # -->
+            <ng-container matColumnDef="rowNumber">
+                <th mat-header-cell *matHeaderCellDef style="text-align:right;padding-right:0">#</th>
+                <td mat-cell *matCellDef="let _; let i = index" style="text-align:right;padding-right:0">{{ i + 1 }}
+                </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Klub -->
+            <ng-container matColumnDef="clubName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Klub</th>
+                <td mat-cell *matCellDef="let item">{{ item.clubName }}</td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Nazwisko -->
+            <ng-container matColumnDef="lastname">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nazwisko</th>
+                <td mat-cell *matCellDef="let item">{{ item.playerSpec.personSpec.lastname }}</td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Imię -->
+            <ng-container matColumnDef="firstname">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Imię</th>
+                <td mat-cell *matCellDef="let item">{{ item.playerSpec.personSpec.firstname }}</td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Pokój -->
+            <ng-container matColumnDef="gender">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Pokój</th>
+                <td mat-cell *matCellDef="let item">{{ getRoom(item, item.playerSpec.personSpec.gender) }}</td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Rok ur. -->
+            <ng-container matColumnDef="birthYear">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Rok ur.</th>
+                <td mat-cell *matCellDef="let item">{{ item.playerSpec.birthYear }}</td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Kategoria -->
+            <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Kategoria</th>
+                <td mat-cell *matCellDef="let item">{{ item.playerSpec.category }}</td>
+                <td mat-footer-cell *matFooterCellDef><strong>RAZEM:</strong></td>
+            </ng-container>
+
+            <!-- Liczba gier -->
+            <ng-container matColumnDef="games">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Liczba gier</th>
+                <td mat-cell *matCellDef="let item">{{ item.playerSpec.games }}</td>
+                <td mat-footer-cell *matFooterCellDef > {{ totalGames }}</td>
+            </ng-container>
+
+            <!-- Kolacja pt -->
+            <ng-container matColumnDef="supper_fri">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Kolacja pt</th>
+                <td mat-cell *matCellDef="let item" class="text-center">
+                    @if(item.playerSpec?.personSpec?.supperFri){ <mat-icon>check</mat-icon> }
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-center">{{ cntSupperFri }}</td>
+            </ng-container>
+
+            <!-- Noc pt/sb -->
+            <ng-container matColumnDef="night_fri_sat">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Noc pt/sb</th>
+                <td mat-cell *matCellDef="let item" class="text-center">
+                    @if(item.playerSpec?.personSpec?.nightFriSat){ <mat-icon>check</mat-icon> }
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-center">{{ cntNightFriSat }}</td>
+            </ng-container>
+
+            <!-- Obiad sb -->
+            <ng-container matColumnDef="dinner_sat">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Obiad sb</th>
+                <td mat-cell *matCellDef="let item" class="text-center">
+                    @if(item.playerSpec?.personSpec?.dinnerSat || item?.dinnerSat){ <mat-icon>check</mat-icon> }
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-center">{{ cntDinnerSat }}</td>
+            </ng-container>
+
+            <!-- Kolacja sb -->
+            <ng-container matColumnDef="supper_sat">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Kolacja sb</th>
+                <td mat-cell *matCellDef="let item" class="text-center">
+                    @if(item.playerSpec?.personSpec?.supperSat){ <mat-icon>check</mat-icon> }
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-center">{{ cntSupperSat }}</td>
+            </ng-container>
+
+            <!-- Noc sb/nie -->
+            <ng-container matColumnDef="night_sat_sun">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Noc sb/nie</th>
+                <td mat-cell *matCellDef="let item" class="text-center">
+                    @if(item.playerSpec?.personSpec?.nightSatSun){ <mat-icon>check</mat-icon> }
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-center">{{ cntNightSatSun }}</td>
+            </ng-container>
+
+            <!-- Obiad nie -->
+            <ng-container matColumnDef="dinner_sun">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-center">Obiad nie</th>
+                <td mat-cell *matCellDef="let item" class="text-center">
+                    @if(item.playerSpec?.personSpec?.dinnerSun){ <mat-icon>check</mat-icon> }
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-center">{{ cntDinnerSun }}</td>
+            </ng-container>
+
+            <!-- Cena -->
+            <ng-container matColumnDef="price_pln">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header class="text-right">Cena [PLN]</th>
+                <td mat-cell *matCellDef="let item" class="text-right">
+                    {{ item.playerSpec?.personSpec?.price }}
+                </td>
+                <td mat-footer-cell *matFooterCellDef class="text-right"><strong>{{ totalPrice | number:'1.0-0'
+                        }}</strong></td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
+        </table>
+
+
+    </div>
+
+    @if (loading) {
+    <div class="loading-spinner ">
+        <mat-spinner diameter="100"></mat-spinner>
+    </div>
+    }
+</div>

@@ -70,6 +70,9 @@ public class RegistrationResource {
     @Path("/individual")
     public Response saveIndividual(@HeaderParam("Authorization") String authToken, @Valid IndividualRegisterRequestDto request) {
 
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
         if (request == null) {
             return badRequest("emptyBody");
         }
@@ -82,6 +85,9 @@ public class RegistrationResource {
         // Emails must match
         if (!Objects.equals(request.email(), request.repeatEmail())) {
             return badRequest("emailMismatch");
+        }
+        if (emailAlreadyRegistered(request.email())) {
+            return duplicateEmail();
         }
 
         long id = service.saveIndividual(request);
@@ -117,6 +123,9 @@ public class RegistrationResource {
         if (isBlank(uuid)) {
             return badRequest("invalid_uuid");
         }
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
         if (request == null) {
             return badRequest("emptyBody");
         }
@@ -147,6 +156,9 @@ public class RegistrationResource {
         if (isBlank(uuid)) {
             return badRequest("invalid_uuid");
         }
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
 
         try {
             service.removeIndividualByUuid(uuid);
@@ -168,6 +180,28 @@ public class RegistrationResource {
 
     private static Response badRequest(String code) {
         return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("error", code)).build();
+    }
+
+    private static Response registrationClosed() {
+        return Response.status(Response.Status.FORBIDDEN)
+                .entity(Map.of("error", "registration_closed"))
+                .build();
+    }
+
+    private static Response duplicateEmail() {
+        return Response.status(Response.Status.CONFLICT)
+                .entity(Map.of("error", "email_already_registered"))
+                .build();
+    }
+
+    private boolean emailAlreadyRegistered(String email) {
+        if (isBlank(email)) {
+            return false;
+        }
+        String normalized = email.trim();
+        return service.findEmails().stream()
+                .filter(Objects::nonNull)
+                .anyMatch(existing -> existing.trim().equalsIgnoreCase(normalized));
     }
 
     private static Response validateClubRequest(ClubRegisterRequestDto request) {
@@ -251,6 +285,9 @@ public class RegistrationResource {
         if (isBlank(uuid)) {
             return badRequest("invalid_uuid");
         }
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
         Response validationError = validateClubRequest(request);
         if (validationError != null) {
             return validationError;
@@ -276,6 +313,9 @@ public class RegistrationResource {
         if (isBlank(uuid)) {
             return badRequest("invalid_uuid");
         }
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
 
         try {
             service.removeClubByUuid(uuid);
@@ -297,9 +337,15 @@ public class RegistrationResource {
             @HeaderParam("Authorization") String authToken,
             @Valid ClubRegisterRequestDto request) {
 
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
         Response validationError = validateClubRequest(request);
         if (validationError != null) {
             return validationError;
+        }
+        if (emailAlreadyRegistered(request.contact().email())) {
+            return duplicateEmail();
         }
 
         long id = service.saveClubRegistration(request);
@@ -334,6 +380,9 @@ public class RegistrationResource {
         if (isBlank(uuid)) {
             return badRequest("invalid_uuid");
         }
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
         Response validationError = validateFamilyRequest(request);
         if (validationError != null) {
             return validationError;
@@ -359,6 +408,9 @@ public class RegistrationResource {
         if (isBlank(uuid)) {
             return badRequest("invalid_uuid");
         }
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
 
         try {
             service.removeFamilyByUuid(uuid);
@@ -380,9 +432,15 @@ public class RegistrationResource {
             @HeaderParam("Authorization") String authToken,
             @Valid ClubRegisterRequestDto request) {
 
+        if (service.isRegistrationClosed()) {
+            return registrationClosed();
+        }
         Response validationError = validateFamilyRequest(request);
         if (validationError != null) {
             return validationError;
+        }
+        if (emailAlreadyRegistered(request.contact().email())) {
+            return duplicateEmail();
         }
 
         long id = service.saveFamilyRegistration(request);

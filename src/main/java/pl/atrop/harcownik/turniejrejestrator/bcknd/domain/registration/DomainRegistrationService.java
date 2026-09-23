@@ -5,6 +5,8 @@ import java.math.BigDecimal;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.RegistrationResource.RegistrationStatus;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.ClubRegisterRequestDto;
 import pl.atrop.harcownik.turniejrejestrator.bcknd.application.rest.registration.dto.IndividualRegisterRequestDto;
@@ -21,6 +23,8 @@ import pl.atrop.harcownik.turniejrejestrator.bcknd.domain.mail.EmailService;
  */
 
 public class DomainRegistrationService implements RegistrationService{
+
+    private static final Logger LOGGER = Logger.getLogger(DomainRegistrationService.class.getName());
 
     private final static String UNVERIFIED = "NIEPOTWIERDZONE";
     private final static String VERIFIED = "POTWIERDZONE";
@@ -44,6 +48,11 @@ public class DomainRegistrationService implements RegistrationService{
         this.generalSettingRepository = gsRepository;
     }
     
+    @Override
+    public boolean isRegistrationClosed() {
+        return generalSettingRepository.findRegistrationClosed();
+    }
+
     @Override
     public List<String> findEmails() {
         List<String> items = repository.findEmails();
@@ -402,17 +411,26 @@ public class DomainRegistrationService implements RegistrationService{
     }
 
     private void sendConfirmationEmail(String email, String msg) {
-        if(generalSettingRepository.findSendEmails()) {
-            String title = generalSettingRepository.findTitle();
-            String ccEmails = generalSettingRepository.findCcEmails();
-            System.out.println("email_1:" + email);
-            System.out.println("ccEmails:" + ccEmails);
-            if (ccEmails.length() > 0) {
-                email += ", " + ccEmails;
-            }
-            System.out.println("email_2:" + email);
-            System.out.println("msg:"  + msg);
-            emailService.sendAsync(email, title, msg);
+        if (!generalSettingRepository.findSendEmails()) {
+            LOGGER.fine("Confirmation e-mail sending is disabled by general setting sendEmails.");
+            return;
+        }
+
+        String title = generalSettingRepository.findTitle();
+        String ccEmails = generalSettingRepository.findCcEmails();
+        String recipients = email;
+        if (ccEmails != null && !ccEmails.isBlank()) {
+            recipients += ", " + ccEmails.trim();
+        }
+
+        try {
+            emailService.sendAsync(recipients, title, msg);
+        } catch (RuntimeException ex) {
+            // Registration/update has already been saved. A mail outage must not make the
+            // client retry the registration and accidentally create a duplicate entry.
+            LOGGER.log(Level.SEVERE,
+                    "Registration was saved, but the confirmation e-mail could not be sent to " + recipients,
+                    ex);
         }
     }
     

@@ -1,0 +1,77 @@
+<section class="header-section">
+  <!-- <p>{{title}}</p> -->
+   <h1 class="page-title">{{title}}</h1>
+  <div style="float: right; margin-top: 10px">
+    <mat-form-field>
+      <mat-label>Filtr</mat-label>
+      <input matInput (keyup)="applyFilter($event)" placeholder="Filtr" #input />
+    </mat-form-field>
+
+    @if(showExpand) {
+      <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="More options">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    }
+    
+    <mat-menu #menu="matMenu" >
+      <button mat-menu-item (click)="exportToCsvFile.emit()">
+        <mat-icon>upload</mat-icon>
+        <span>Export do txt</span>
+      </button>
+
+      <button mat-menu-item (click)="exportShortToPdfFile.emit()">
+        <mat-icon>upload</mat-icon>
+        <span>Raport skrócony</span>
+      </button>
+
+      <button mat-menu-item (click)="exportFullToPdfFile.emit()">
+        <mat-icon>upload</mat-icon>
+        <span>Raport pełny</span>
+      </button>
+
+      @if(showCoupons) {
+        <mat-divider></mat-divider>
+        <button mat-menu-item [matMenuTriggerFor]="couponMenu">
+          <mat-icon>confirmation_number</mat-icon>
+          <span>Kupony</span>
+        </button>
+      }
+
+        <!--
+      @if(showExpand && roleImpex) {
+      <button mat-menu-item (click)="export2File()">
+        <mat-icon>upload</mat-icon>
+        <span>Export_123</span>
+      </button>
+
+      <button mat-menu-item (click)="triggerFileInput()">
+        <mat-icon>download</mat-icon>
+        <span>Import</span>
+        <input type="file" accept=".json" #fileInput (change)="importFromFile($event)" hidden />
+      </button>
+
+      <button mat-menu-item (click)="onDeleteAll()">
+        <mat-icon>delete</mat-icon>
+        <span>Usuń wszystkie</span>
+      </button>
+      <mat-divider></mat-divider>
+      }
+    -->
+
+      <!--button mat-menu-item [disabled]="!activeOnly" (click)="activeOnly = false; findAll()">
+        {{showAll}}
+      </button>
+      <button mat-menu-item [disabled]="activeOnly" (click)="activeOnly = true; findAll()">
+        {{showOnlyActive}}
+      </button-->
+    </mat-menu>
+
+    <mat-menu #couponMenu="matMenu">
+      <button mat-menu-item (click)="couponRequested.emit('SUPPER_FRIDAY')">Kolacja piątek</button>
+      <button mat-menu-item (click)="couponRequested.emit('DINNER_SATURDAY')">Obiad sobota</button>
+      <button mat-menu-item (click)="couponRequested.emit('SUPPER_SATURDAY')">Kolacja sobota</button>
+      <button mat-menu-item (click)="couponRequested.emit('DINNER_SUNDAY')">Obiad niedziela</button>
+    </mat-menu>
+
+  </div>
+</section>

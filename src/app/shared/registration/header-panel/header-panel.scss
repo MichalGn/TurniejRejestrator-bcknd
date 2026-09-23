@@ -1,0 +1,6 @@
+.back-btn {
+  position: fixed;   /* pin to the viewport corner */
+  top: 8px;
+  left: 8px;
+  z-index: 1000;     /* above content */
+}

@@ -1,0 +1,75 @@
+<h2 mat-dialog-title>{{ title }}</h2>
+<form #form="ngForm">
+    <mat-dialog-content>
+        <!-- <p>Dane użytkownika</p> -->
+        <div class="dialog-form">
+            <mat-form-field class="form-field">
+                <mat-label>Imię</mat-label>
+                <input matInput [(ngModel)]="firstname" autocomplete="firstname"
+                    [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Nazwisko</mat-label>
+                <input matInput [(ngModel)]="lastname" autocomplete="lastname" [ngModelOptions]="{standalone: true}" />
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Rok urodzenia</mat-label>
+                <input matInput name="birthYear" type="number" inputmode="numeric" step="1" min="1900" [max]="maxYear"
+                    required [(ngModel)]="birthYear" [ngModelOptions]="{ standalone: true }" #birthYearCtrl="ngModel" />
+                    @if(birthYearCtrl.touched && birthYearCtrl.errors?.['required']) {
+                        <mat-error>Wymagane</mat-error>
+                    }
+                    @if(birthYearCtrl.touched && birthYearCtrl.errors?.['min']) {
+                        <mat-error>Minimalny rok: 1900</mat-error>
+                    }
+                    @if(birthYearCtrl.touched && birthYearCtrl.errors?.['max']) {
+                        <mat-error>Maksymalny rok: {{ maxYear }}</mat-error>
+                    }
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Kategoria</mat-label>
+                <mat-select [(ngModel)]="category" name="category"
+                    (selectionChange)="onCategoryChange($event.value)">
+                    <mat-option value="KT">KT</mat-option>
+                    <mat-option value="GP">GP</mat-option>
+                    <mat-option value="ZAK">Żak</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Liczba gier</mat-label>
+                <mat-select [(ngModel)]="games" name="games" [disabled]="category === 'ZAK'"
+                    (selectionChange)="onGamesChange($event.value)">
+                    <mat-option value="1g">1 gra</mat-option>
+                    <mat-option value="2g">2 gry</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Płeć</mat-label>
+                <mat-select [(ngModel)]="gender" name="gender">
+                    <mat-option value="m">mężczyzna</mat-option>
+                    <mat-option value="f">kobieta</mat-option>
+                </mat-select>
+            </mat-form-field>
+
+            <app-accomodation-and-meal [group]="accGroup" [disableDinnerSat]="category !== 'ZAK'">
+            </app-accomodation-and-meal>
+
+            <div class="price-banner">
+                <mat-icon>payments</mat-icon>
+                Do zapłaty: <strong>{{ totalPrice | currency:'PLN':'symbol':'1.0-0':'pl' }}</strong>
+            </div>
+        </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions>
+        <button mat-button type="button" (click)="onNoClick()">Anuluj</button>
+        <button mat-button type="button" (click)="edit ? onEditClick() : onAddClick()" [disabled]="form.invalid">
+            {{ buttonDesc }}
+        </button>
+    </mat-dialog-actions>
+</form>

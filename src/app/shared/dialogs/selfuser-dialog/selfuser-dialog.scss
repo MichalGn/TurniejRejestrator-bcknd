@@ -1,0 +1,23 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column; /* Ensure elements stack vertically */
+  gap: 10px; /* Add spacing between fields */
+  width: 100%;
+}
+
+.form-field {
+  width: 100%; /* Ensure fields take full width */
+}
+
+::ng-deep .mat-dialog-container {
+  max-height: 90vh; /* prevent overflow */
+  overflow: hidden; /* hide scrollbar */
+  border-radius: 16px;
+}
+
+mat-dialog-content {
+  overflow: auto;
+  max-height: 65vh;
+  padding-right: 8px; // avoid content shifting when scrollbar is hidden
+}
+

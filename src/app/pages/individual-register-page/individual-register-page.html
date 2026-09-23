@@ -1,0 +1,179 @@
+<app-header-panel />
+<div class="page-container">
+
+    <!-- Centered card -->
+    <mat-card class="center-card">
+        <!-- Title -->
+        <h2 class="form-title">{{ editMode ? 'Edycja zgłoszenia indywidualnego' : 'Rejestracja indywidualna' }}</h2>
+        <!-- <h3 class="form-subtitle"></h3> -->
+
+        <form class="club-form" [formGroup]="form" (ngSubmit)="submit()">
+            <div class="two-col-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Imię zawodnika</mat-label>
+                    <input matInput formControlName="firstname" />
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Nazwisko zawodnika</mat-label>
+                    <input matInput formControlName="lastname" />
+                </mat-form-field>
+            </div>
+
+            <div class="two-col-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Płeć</mat-label>
+                    <mat-select formControlName="gender">
+                        <mat-option value="m">mężczyzna</mat-option>
+                        <mat-option value="f">kobieta</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Rok urodzenia</mat-label>
+                    <input matInput formControlName="birthYear" type="number" inputmode="numeric" step="1" />
+                    <!-- @if (f.birthYear.hasError('pattern') && (f.birthYear.dirty || f.birthYear.touched)) {
+                    <mat-error>Tylko cyfry</mat-error>
+                }-->
+
+                    @if (f.birthYear.hasError('min') && (f.birthYear.dirty || f.birthYear.touched)) {
+                    <mat-error>≥ 1900</mat-error>
+                    }
+
+                    @if (f.birthYear.hasError('max') && (f.birthYear.dirty || f.birthYear.touched)) {
+                    <mat-error>≤ {{ maxYear }}</mat-error>
+                    }
+
+                </mat-form-field>
+            </div>
+
+            <div class="two-col-row">
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Kategoria</mat-label>
+                    <mat-select formControlName="category">
+                        <mat-option value="KT">KT</mat-option>
+                        <mat-option value="GP">GP</mat-option>
+                        <mat-option value="ZAK">Żak</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Liczba gier</mat-label>
+                    <mat-select formControlName="games">
+                        <mat-option value="1g">1 gra</mat-option>
+                        <mat-option value="2g">2 gry</mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+
+            <!-- <div class="nights">
+                <mat-slide-toggle formControlName="nightFriSat">Nocleg piątek/sobota</mat-slide-toggle>
+                <mat-slide-toggle formControlName="supperFri">Kolacja w piątek</mat-slide-toggle>
+                <mat-slide-toggle formControlName="nightSatSun">Nocleg sobota/niedziela</mat-slide-toggle>
+                <mat-slide-toggle formControlName="supperSat">Kolacja w sobotę</mat-slide-toggle>
+                <div></div>
+                <mat-slide-toggle formControlName="dinnerSun">Obiad w niedzielę</mat-slide-toggle>
+            </div> -->
+
+            <app-accomodation-and-meal
+                [group]="form"
+                [disableDinnerSat]="f.category.value !== 'ZAK'" />
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Miejscowość</mat-label>
+                <input matInput formControlName="city" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="email" />
+
+                <!-- standard validation -->
+                @if((f.email.touched || f.email.dirty) && f.email.invalid) {
+                <mat-error>
+                    Podaj poprawny email
+                </mat-error>
+                }
+                @if (f.email.valid && emailExists) {
+                <mat-hint [align]="'end'" class="error-inline">Email wykorzystany!</mat-hint>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Powtórz email</mat-label>
+                <input matInput type="email" formControlName="repeatEmail" />
+                <!-- @if(form.touched && form.hasError('emailMismatch')) { -->
+                @if( (f.repeatEmail.touched || f.repeatEmail.dirty) && f.repeatEmail.hasError('emailMismatch') ) {
+                <mat-error>E-maile nie są takie same!</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Uwagi / komentarz (opcjonalnie)</mat-label>
+                <!-- placeholder="Np. preferencje noclegowe, uwagi organizacyjne…" -->
+                <textarea matInput formControlName="comment" rows="2" maxlength="500">
+                </textarea>
+                <mat-hint [align]="'end'">{{ f.comment.value.length }}/500</mat-hint>
+                @if(f.comment.touched && f.comment.hasError('maxlength')) {
+                <mat-error>Maksymalnie 500 znaków</mat-error>
+                }
+            </mat-form-field>
+
+
+            <!--mat-form-field appearance="outline" class="full-width">
+                <mat-label>NIP</mat-label>
+                <input matInput [(ngModel)]="nip" name="nip" />
+            </mat-form-field-->
+
+            <!-- Price banner -->
+            <!-- @if(form.valid && totalPrice > 0) { -->
+            <div class="price-banner">
+                <mat-icon>payments</mat-icon>
+                <!-- Do zapłaty: <strong>{{ totalPrice | currency:'PLN':'symbol-narrow':'1.0-0' }}</strong> -->
+                Do zapłaty: <strong>{{ totalPrice | currency:'PLN':'symbol':'1.0-0':'pl' }}</strong>
+
+            </div>
+            <!-- } -->
+            @if(4>5 && !form.valid) {
+            <div class="price-banner muted">
+                <mat-icon>info</mat-icon>
+                Uzupełnij wymagane pola, aby zobaczyć cenę.
+            </div>
+            }
+            <mat-card-actions class="actions-center">
+                @if (!wasSent) {
+                <div class="edit-actions">
+                    <button mat-raised-button color="warn" class="cta-btn" type="submit"
+                        [disabled]="form.invalid || emailExists || wasSent || loading || registrationClosed">
+                        {{ editMode ? 'Zapisz zmiany' : 'Wyślij zgłoszenie' }}
+                    </button>
+
+                    @if (editMode) {
+                    <button mat-stroked-button color="warn" class="delete-registration-btn" type="button"
+                        [disabled]="loading || wasSent || registrationClosed" (click)="removeRegistration()">
+                        <mat-icon>delete</mat-icon>
+                        Usuń zgłoszenie
+                    </button>
+                    }
+                </div>
+                } @else {
+                <div class="success-banner" role="status" aria-live="polite">
+                    <mat-icon>{{ wasRemoved ? 'delete' : 'check_circle' }}</mat-icon>
+                    <span>{{ wasRemoved ? 'Zgłoszenie zostało usunięte.' : (editMode ? 'Zmiany zostały zapisane.' : 'Dziękujemy. Zgłoszenie zostało wysłane.') }}</span>
+                </div>
+                }
+            </mat-card-actions>
+
+            @if (registrationClosed) {
+            <div class="registration-closed-banner" role="status">
+                <mat-icon>lock</mat-icon>
+                Rejestracja zamknięta
+            </div>
+            }
+        </form>
+        @if (loading) {
+        <div class="loading-spinner">
+            <mat-progress-spinner mode="indeterminate" color="accent"></mat-progress-spinner>
+        </div>
+        }
+    </mat-card>

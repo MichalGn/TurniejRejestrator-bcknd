@@ -1,0 +1,18 @@
+<h2 mat-dialog-title class="login-dialog-title">Logowanie</h2>
+
+<mat-dialog-content class="login-dialog-content">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Login</mat-label>
+    <input matInput [(ngModel)]="login" autocomplete="username" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Hasło</mat-label>
+    <input matInput [(ngModel)]="password" type="password" autocomplete="current-password"  (keydown.enter)="onLogin()"/>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions class="login-dialog-actions">
+  <button mat-button type="button" (click)="onCancel()">Anuluj</button>
+  <button mat-raised-button type="button" color="primary" (click)="onLogin()">Zaloguj</button>
+</mat-dialog-actions>

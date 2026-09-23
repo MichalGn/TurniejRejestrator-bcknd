@@ -1,0 +1,63 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* make Nabywca really take all the width */
+.full-width,
+.form-field.full-width,
+.dialog-form .full-width {
+  width: 100%;
+}
+
+.two-col-row {
+  display: grid;
+  grid-template-columns: 3fr 1fr; /* Opis wider */
+  gap: 16px;
+
+  .col-desc,
+  .col-value,
+  mat-form-field { width: 100%; }
+}
+
+.two-col-row-33 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr; /* Opis wider */
+  gap: 16px;
+
+  .col-desc,
+  .col-value,
+  mat-form-field { width: 100%; }
+}
+
+.two-col-row-50 {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Opis wider */
+  gap: 16px;
+
+  .col-desc,
+  .col-value,
+  mat-form-field { width: 100%; }
+}
+
+/* Sum row: left is empty spacer, right is the field */
+.sum-row .col-spacer { grid-column: 1 / 2; }
+.sum-row .col-value  { grid-column: 2 / 3; }
+
+/* Optional: stack on small screens */
+@media (max-width: 640px) {
+  .two-col-row { grid-template-columns: 1fr; }
+  .sum-row .col-spacer { display: none; }
+  .sum-row .col-value  { grid-column: 1 / 2; }
+}
+
+/* Right-align the text inside Material inputs */
+.align-right {
+  text-align: right;
+}
+
+/* (optional) ensure any value inputs inside the right column are right-aligned */
+.col-value .mat-mdc-input-element {
+  text-align: right;
+}

@@ -1,0 +1,26 @@
+<h1 class="page-title" style="margin-left:16px; margin-top:12px">Ustawienia</h1>
+
+<div class="list-container">
+  @for (item of settingsDef; track item.label) {
+    <div class="settings-row">
+      <span class="label">{{ item.label }}</span>
+      @if (item.inputType === 'boolean') {
+        <span class="value boolean-value">
+          <mat-slide-toggle
+            [checked]="isBooleanTrue(item.value)"
+            (change)="updateBoolean(item, $event.checked)">
+            {{ isBooleanTrue(item.value) ? 'TAK' : 'NIE' }}
+          </mat-slide-toggle>
+        </span>
+        <span class="edit-button"></span>
+      } @else {
+        <span class="value">{{ item.value }}</span>
+        <button mat-icon-button color="primary" class="edit-button" (click)="edit(item)" aria-label="Edytuj ustawienie">
+          <mat-icon>edit</mat-icon>
+        </button>
+      }
+    </div>
+  } @empty {
+    <div class="settings-row empty-row">Brak ustawień</div>
+  }
+</div>

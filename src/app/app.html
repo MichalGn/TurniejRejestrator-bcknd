@@ -1,0 +1,24 @@
+<mat-toolbar color="primary" class="app-toolbar">
+  <span class="toolbar-title">{{title}}</span>
+
+  <div class="display-right">
+    @if (isAuthenticated) {
+    <button mat-icon-button class="nav-button" aria-label="Example icon-button with share icon"
+      [matTooltip]="(user$ | async)?.data?.username" (click)="editSelfuser()">
+      <mat-icon>account_circle</mat-icon>
+    </button>
+    <button mat-icon-button class="nav-button" aria-label="Example icon-button with share icon" matTooltip="Logout"
+      (click)="logout()">
+      <mat-icon>power_settings_new</mat-icon>
+    </button>
+
+    } @else {
+    <button mat-icon-button class="login-button" aria-label="Login" matTooltip="Zaloguj" (click)="onLogin()">
+      <mat-icon style="color: rgb(157, 209, 232);">login</mat-icon>
+    </button>
+
+    }
+  </div>
+</mat-toolbar>
+<!-- <pre>user: {{ (user$ | async)?.data | json }}</pre> -->
+<router-outlet />

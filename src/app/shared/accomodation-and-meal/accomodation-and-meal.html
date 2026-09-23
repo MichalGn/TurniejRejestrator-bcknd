@@ -1,0 +1,13 @@
+<div class="nights" [formGroup]="group">
+  <mat-slide-toggle formControlName="supperFri">Kolacja w piątek</mat-slide-toggle>
+  @if (!hideNights) {
+  <mat-slide-toggle formControlName="nightFriSat">Nocleg piątek/sobota</mat-slide-toggle>
+  }
+  <mat-slide-toggle formControlName="dinnerSat">Obiad w sobotę</mat-slide-toggle>
+
+  <mat-slide-toggle formControlName="supperSat">Kolacja w sobotę</mat-slide-toggle>
+  @if (!hideNights) {
+  <mat-slide-toggle formControlName="nightSatSun">Nocleg sobota/niedziela</mat-slide-toggle>
+  }
+  <mat-slide-toggle formControlName="dinnerSun">Obiad w niedzielę</mat-slide-toggle>
+</div>

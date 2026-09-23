@@ -1,0 +1,52 @@
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.form-field {
+  width: 100%;
+}
+
+::ng-deep .mat-dialog-container {
+  max-height: 96vh;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+mat-dialog-content {
+  min-width: 640px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 760px) {
+  mat-dialog-content {
+    min-width: 0;
+  }
+}
+
+.price-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  background: #ffebee;
+  color: #b71c1c;
+  border: 1px solid #ffcdd2;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
